@@ -1,0 +1,8 @@
+*.log
+*.bak
+*.tmp
+*.pyc
+__pycache__/
+.cache/
+keyring.json
+fish_variables

@@ -1,0 +1,15 @@
+return {
+    kbTerminal         = { "SUPER + Q", "SUPER + Cyrillic_shorti" },
+    kbBrowser          = { "SUPER + F", "SUPER + Cyrillic_a" },
+    kbWindowFullscreen = { "SUPER + F11", "SUPER + ALT + F" },
+    kbCloseWindow      = { "SUPER + C", "SUPER + Cyrillic_es", "SUPER + SHIFT + Q", "ALT + F4" },
+    kbEditor           = "SUPER + ALT + C",
+    kbClipboard        = { "SUPER + V", "SUPER + Cyrillic_em" },
+    kbClipboardDel     = { "SUPER + ALT + V", "SUPER + ALT + Cyrillic_em" },
+    kbEmoji            = { "SUPER + Period", "SUPER + Cyrillic_yu" },
+    kbLauncher         = { "SUPER + D", "SUPER + Cyrillic_ve" },
+    kbCommunicationWs  = "SUPER + ALT + D",
+    kbShowPanels       = "SUPER + ALT + K",
+    kbClockPopup       = { "SUPER + B", "SUPER + Cyrillic_i" },
+    kbMoveWinToWs      = "SUPER + SHIFT",
+}
