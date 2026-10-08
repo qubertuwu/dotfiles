@@ -29,8 +29,6 @@ Singleton {
     property alias wallpaperModel: wallpaperModel
     property string sortMode: Config.options.wallpaperSelector?.sortMode || "custom"
     onSortModeChanged: debounceRebuildTimer.restart()
-    property string colorGroup: ""
-    onColorGroupChanged: debounceRebuildTimer.restart()
     property var orderMap: ({})
     property bool orderLoaded: false
     property string searchQuery: ""
@@ -397,29 +395,12 @@ Singleton {
         const effectiveMode = (root.sortMode === "custom" || (!root.sortMode && savedOrder.length > 0)) ? "custom" : root.sortMode;
         const sorted = sortItems(items, effectiveMode, savedOrder);
 
-        function matchesColor(fileName, colorGroup) {
-            if (!colorGroup || colorGroup === "") return true;
-            const lower = fileName.toLowerCase();
-            const map = {
-                "red": ["red", "赤", "crimson", "ruby", "scarlet", "blood", "fire", "rose", "pink", "一键三连娘", "warm"],
-                "orange": ["orange", "autumn", "firewatch", "sunset", "warm", "amber", "porsche gt3 rs", "sale"],
-                "yellow": ["yellow", "gold", "sun", "musashi", "field", "fast", "autumn", "summer"],
-                "green": ["green", "forest", "tree", "grass", "nature", "field", "landscape", "racing green", "last of us"],
-                "blue": ["blue", "star", "miku", "water", "ocean", "rain", "winter", "snow", "jett", "gojo", "hollow", "acheron", "fog"],
-                "purple": ["purple", "violet", "evangelion", "holo", "glitch", "hello world", "neon", "eye"],
-            };
-            const keywords = map[colorGroup] || [];
-            return keywords.some(k => lower.includes(k));
-        }
-
         wallpaperModel.clear();
         const paths = [];
         for (let i = 0; i < sorted.length; i++) {
-            if (sorted[i].fileIsDir || matchesColor(sorted[i].fileName, root.colorGroup)) {
-                wallpaperModel.append(sorted[i]);
-                if (sorted[i].filePath && sorted[i].filePath.length) {
-                    paths.push(sorted[i].filePath);
-                }
+            wallpaperModel.append(sorted[i]);
+            if (sorted[i].filePath && sorted[i].filePath.length) {
+                paths.push(sorted[i].filePath);
             }
         }
         root.wallpapers = paths;
@@ -476,6 +457,14 @@ Singleton {
 
         function moveWallpaper(fromIndex: int, toIndex: int): void {
             root.moveWallpaper(fromIndex, toIndex);
+        }
+
+        function setDirectory(path: string): void {
+            root.setDirectory(path);
+        }
+
+        function syncWallpaperEngine(): void {
+            Quickshell.execDetached(["python3", `${FileUtils.trimFileProtocol(Directories.scriptPath)}/sync_wallpaper_engine.py`]);
         }
     }
 }

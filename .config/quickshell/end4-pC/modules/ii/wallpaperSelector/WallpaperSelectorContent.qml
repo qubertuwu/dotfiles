@@ -42,6 +42,7 @@ MouseArea {
     ]
 
     function updateThumbnails() {
+        Quickshell.execDetached(["python3", `${FileUtils.trimFileProtocol(Directories.scriptPath)}/sync_wallpaper_engine.py`]);
         Quickshell.execDetached(["python3", `${FileUtils.trimFileProtocol(Directories.scriptPath)}/sync_wallpapers.py`]);
         const item = gridLoader.item;
         const totalImageMargin = (Appearance.sizes.wallpaperSelectorItemMargins + Appearance.sizes.wallpaperSelectorItemPadding) * 2;
@@ -65,10 +66,12 @@ MouseArea {
 
     function selectWallpaperPath(filePath) {
         if (filePath && filePath.length > 0) {
-            if (GlobalStates.wallpaperSelectorTarget === "lockWall") {
+            if (GlobalStates.screenLocked || GlobalStates.wallpaperSelectorTarget === "lockWall") {
+                if (Config.options.background.enableWallpaperPreview)
+                    Wallpapers.stopPreview();
                 Wallpapers.select(filePath, root.useDarkMode, finalPath => {
                     Config.options.background.lockWall = finalPath;
-                    GlobalStates.wallpaperSelectorTarget = "wallpaper";
+                    GlobalStates.wallpaperSelectorTarget = GlobalStates.screenLocked ? "lockWall" : "wallpaper";
                     GlobalStates.wallpaperSelectorOpen = false;
                 });
             } else {
@@ -237,27 +240,7 @@ MouseArea {
                     id: topBar
                     Layout.fillWidth: true
                     Layout.margins: 16
-                    Layout.leftMargin: 20
                     implicitHeight: 56
-
-                    RowLayout {
-                        anchors {
-                            left: parent.left
-                            verticalCenter: parent.verticalCenter
-                        }
-                        spacing: 8
-
-                        MaterialShapeWrappedMaterialSymbol {
-                            wrappedShape: MaterialShape.Shape.Gem
-                            text: root.source === "themes" ? "palette" : "image"
-                            iconSize: Appearance.font.pixelSize.larger
-                        }
-
-                        StyledText {
-                            text: root.source === "themes" ? Translation.tr("Themes") : Translation.tr("Wallpaper Selector")
-                            font.pixelSize: Appearance.font.pixelSize.large
-                        }
-                    }
 
                     Toolbar {
                         anchors.centerIn: parent
@@ -360,86 +343,6 @@ MouseArea {
                         }
                     }
 
-                    RowLayout {
-                        anchors {
-                            right: parent.right
-                            rightMargin: 8
-                            verticalCenter: parent.verticalCenter
-                        }
-                        spacing: 6
-
-                        StyledComboBox {
-                            id: themeCombo
-                            implicitWidth: 125
-                            model: [
-                                { value: "catppuccin", displayName: "Catppuccin" },
-                                { value: "dracula",    displayName: "Dracula" },
-                                { value: "gruvbox",    displayName: "Gruvbox" },
-                                { value: "nord",       displayName: "Nord" },
-                                { value: "rosepine",   displayName: "Rose Pine" },
-                                { value: "tokyonight", displayName: "Tokyo Night" },
-                                { value: "caelestia",  displayName: "Caelestia" },
-                                { value: "darkgreen",  displayName: "Dark Green" },
-                                { value: "everforest", displayName: "Everforest" },
-                                { value: "everblush",  displayName: "Everblush" },
-                                { value: "onedark",    displayName: "One Dark" },
-                                { value: "solarized",  displayName: "Solarized" },
-                                { value: "dynamic",    displayName: "Dynamic" },
-                            ]
-                            textRole: "displayName"
-                            onCurrentIndexChanged: {
-                                const selected = model[currentIndex].value;
-                                Quickshell.execDetached(["caelestia", "scheme", "set", "-n", selected]);
-                            }
-                        }
-
-                        StyledComboBox {
-                            id: sourceCombo
-                            implicitWidth: 120
-                            model: [
-                                { value: "local",     displayName: Translation.tr("Local") },
-                                { value: "themes",    displayName: Translation.tr("Themes") },
-                                { value: "wallhaven", displayName: Translation.tr("Wallhaven") },
-                                { value: "blapples",  displayName: Translation.tr("Blapples") },
-                                { value: "naive",     displayName: Translation.tr("NA-ive") },
-                                { value: "unsplash",  displayName: Translation.tr("Unsplash") },
-                                { value: "pexels",    displayName: Translation.tr("Pexels") },
-                            ]
-                            currentIndex: Math.max(0, model.findIndex(m => m.value === root.source))
-                            textRole: "displayName"
-                            onActivated: index => {
-                                root.source = model[index].value
-                                root.forceActiveFocus()
-                            }
-                        }
-
-                        RippleButton {
-                            implicitWidth: 36
-                            implicitHeight: 36
-                            buttonRadius: height / 2
-                            toggled: root.toolbarVisible
-                            colBackground: Appearance.colors.colSecondaryContainer
-                            onClicked: {
-                                if (Config.options.wallpaperSelector.showSearchbar) {
-                                    Config.options.wallpaperSelector.showSearchbar = false
-                                    showControls = false
-                                } else {
-                                    showControls = !showControls
-                                }
-                            }
-                            contentItem: MaterialSymbol {
-                                anchors.centerIn: parent
-                                text: "search"
-                                iconSize: Appearance.font.pixelSize.larger
-                                color: root.toolbarVisible
-                                    ? Appearance.colors.colOnPrimary
-                                    : Appearance.colors.colOnSecondaryContainer
-                            }
-                            StyledToolTip {
-                                text: Translation.tr("Toggle search toolbar (Ctrl+F)")
-                            }
-                        }
-                    }
                 }
 
                 // Theme Presets Section

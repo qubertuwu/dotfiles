@@ -24,8 +24,11 @@ Item {
     readonly property string glyphTopRight: DateTime.digitH1
     readonly property string glyphBottomLeft: DateTime.digitM0
     readonly property string glyphBottomRight: DateTime.digitM1
-    readonly property color tintSoft: Appearance.colors.colPrimaryContainer
-    readonly property color tintBold: Appearance.colors.colPrimary
+    readonly property color tintA: Appearance.colors.colPrimary
+    readonly property color tintB: Appearance.colors.colSecondary
+    readonly property color tintC: Appearance.colors.colTertiary
+    readonly property color tintD: Appearance.colors.colPrimary
+    readonly property color tintColon: Appearance.colors.colSecondary
 
     readonly property real fringeSize: isVertical ? root.width * 0.026 : root.height * 0.03
     readonly property real tileW: isVertical ? root.width * 0.66 : root.width * 0.327
@@ -93,7 +96,7 @@ Item {
                 x: root.pos0X
                 y: root.pos0Y
                 text: root.glyphTopLeft
-                color: root.tintSoft
+                color: root.tintA
             }
         }
         Item {
@@ -129,7 +132,7 @@ Item {
             height: root.tileH
             cardRadius: 0
             blurSource: root.wallpaperItem
-            tint: root.tintSoft
+            tint: root.tintA
             tintOpacity: 0.55
             trackX: root.originX + root.pos0X
             trackY: root.originY + root.pos0Y
@@ -151,7 +154,7 @@ Item {
                 x: root.pos1X
                 y: root.pos1Y
                 text: root.glyphTopRight
-                color: root.tintBold
+                color: root.tintB
             }
         }
         Item {
@@ -186,7 +189,7 @@ Item {
             height: root.tileH
             cardRadius: 0
             blurSource: root.wallpaperItem
-            tint: root.tintBold
+            tint: root.tintB
             tintOpacity: 0.55
             trackX: root.originX + root.pos1X
             trackY: root.originY + root.pos1Y
@@ -208,7 +211,7 @@ Item {
                 x: root.pos2X
                 y: root.pos2Y
                 text: root.glyphBottomLeft
-                color: root.tintBold
+                color: root.tintC
             }
         }
         Item {
@@ -242,7 +245,7 @@ Item {
             height: root.tileH
             cardRadius: 0
             blurSource: root.wallpaperItem
-            tint: root.tintBold
+            tint: root.tintC
             tintOpacity: 0.55
             trackX: root.originX + root.pos2X
             trackY: root.originY + root.pos2Y
@@ -272,7 +275,7 @@ Item {
             x: root.pos3X
             y: root.pos3Y
             text: root.glyphBottomRight
-            color: root.tintSoft
+            color: root.tintD
             z: 3
             visible: !root.blurWidgets
         }
@@ -284,7 +287,7 @@ Item {
             height: root.tileH
             cardRadius: 0
             blurSource: root.wallpaperItem
-            tint: root.tintSoft
+            tint: root.tintD
             tintOpacity: 0.55
             trackX: root.originX + root.pos3X
             trackY: root.originY + root.pos3Y
@@ -309,13 +312,13 @@ Item {
                 width: root.colonDotSize
                 height: root.colonDotSize
                 radius: width / 2
-                color: root.tintBold
+                color: root.tintColon
                 anchors.horizontalCenter: parent.horizontalCenter
                 FastBlurred {
                     anchors.fill: parent
                     cardRadius: width / 2
                     blurSource: root.wallpaperItem
-                    tint: root.tintBold
+                    tint: root.tintColon
                     tintOpacity: 0.55
                     trackX: root.originX + root.colonX
                     trackY: root.originY + root.pos0Y + root.tileH / 2 - height / 2
@@ -326,13 +329,13 @@ Item {
                 width: root.colonDotSize
                 height: root.colonDotSize
                 radius: width / 2
-                color: root.tintBold
+                color: root.tintColon
                 anchors.horizontalCenter: parent.horizontalCenter
                 FastBlurred {
                     anchors.fill: parent
                     cardRadius: width / 2
                     blurSource: root.wallpaperItem
-                    tint: root.tintBold
+                    tint: root.tintColon
                     tintOpacity: 0.55
                     trackX: root.originX + root.colonX
                     trackY: root.originY + root.pos0Y + root.tileH / 2 - height / 2 + root.colonGap + root.colonDotSize

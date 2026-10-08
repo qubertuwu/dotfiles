@@ -21,7 +21,7 @@ Scope {
             if (GlobalStates.wallpaperSelectorOpen) {
                 closeAnimTimer.stop();
                 root.reallyOpen = true;
-                if (!Wallpapers.effectiveDirectory || Wallpapers.effectiveDirectory === Directories.home || !Wallpapers.effectiveDirectory.includes("Wallpapers")) {
+                if (!Wallpapers.effectiveDirectory) {
                     Wallpapers.setDirectory(`${Directories.pictures}/Wallpapers`);
                 }
             } else {
@@ -38,7 +38,7 @@ Scope {
 
     Loader {
         id: wallpaperSelectorLoader
-        active: root.reallyOpen
+        active: root.reallyOpen && !GlobalStates.screenLocked
 
         sourceComponent: PanelWindow {
             id: panelWindow

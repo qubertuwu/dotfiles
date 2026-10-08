@@ -10,6 +10,7 @@ import qs.modules.common.widgets
 import qs.modules.common.functions
 import qs.modules.common.panels.lock
 import qs.modules.ii.bar as Bar
+import qs.modules.ii.wallpaperSelector
 import Quickshell
 import Quickshell.Services.SystemTray
 
@@ -35,6 +36,7 @@ MouseArea {
 
     // Force focus on entry
     function forceFieldFocus() {
+        if (GlobalStates.wallpaperSelectorOpen) return;
         passwordBox.forceActiveFocus();
     }
     Connections {
@@ -43,13 +45,26 @@ MouseArea {
             forceFieldFocus();
         }
     }
+    Connections {
+        target: GlobalStates
+        function onWallpaperSelectorOpenChanged() {
+            if (!GlobalStates.wallpaperSelectorOpen) {
+                root.forceFieldFocus();
+            }
+        }
+    }
     hoverEnabled: true
-    acceptedButtons: Qt.LeftButton
+    acceptedButtons: Qt.LeftButton | Qt.RightButton
     onPressed: mouse => {
-        forceFieldFocus();
+        if (mouse.button === Qt.RightButton) {
+            GlobalStates.wallpaperSelectorTarget = Config.options.background.lockWall === "" ? "wallpaper" : "lockWall";
+            GlobalStates.wallpaperSelectorOpen = !GlobalStates.wallpaperSelectorOpen;
+            return;
+        }
+        if (!GlobalStates.wallpaperSelectorOpen) forceFieldFocus();
     }
     onPositionChanged: mouse => {
-        forceFieldFocus();
+        if (!GlobalStates.wallpaperSelectorOpen) forceFieldFocus();
     }
 
     // Toolbar appearing animation
@@ -76,6 +91,19 @@ MouseArea {
     // Key presses
     property bool ctrlHeld: false
     Keys.onPressed: event => {
+        if (GlobalStates.wallpaperSelectorOpen) {
+            if (event.key === Qt.Key_Escape) {
+                GlobalStates.wallpaperSelectorOpen = false;
+                event.accepted = true;
+                return;
+            }
+        }
+        if ((event.modifiers & Qt.MetaModifier) && (event.key === Qt.Key_W || event.key === Qt.Key_Cyrillic_tse)) {
+            GlobalStates.wallpaperSelectorTarget = Config.options.background.lockWall === "" ? "wallpaper" : "lockWall";
+            GlobalStates.wallpaperSelectorOpen = !GlobalStates.wallpaperSelectorOpen;
+            event.accepted = true;
+            return;
+        }
         root.context.resetClearTimer();
         if (event.key === Qt.Key_Control) {
             root.ctrlHeld = true;
@@ -506,6 +534,20 @@ MouseArea {
         }
 
         IconToolbarButton {
+            id: wallpaperButton
+            text: "imagesmode"
+            toggled: GlobalStates.wallpaperSelectorOpen
+            colBackgroundToggled: Appearance.colors.colPrimary
+            onClicked: {
+                GlobalStates.wallpaperSelectorTarget = Config.options.background.lockWall === "" ? "wallpaper" : "lockWall";
+                GlobalStates.wallpaperSelectorOpen = !GlobalStates.wallpaperSelectorOpen;
+            }
+            StyledToolTip {
+                text: Translation.tr("Change wallpaper")
+            }
+        }
+
+        IconToolbarButton {
             id: sleepButton
             onClicked: Session.suspend()
             text: "dark_mode"
@@ -568,6 +610,81 @@ MouseArea {
             anchors.verticalCenter: parent.verticalCenter
             text: pair.text
             color: pair.color
+        }
+    }
+
+    Loader {
+        id: lockWallpaperSelectorLoader
+        anchors.fill: parent
+        z: 999
+        active: GlobalStates.screenLocked && GlobalStates.wallpaperSelectorOpen
+
+        sourceComponent: Item {
+            id: selectorWrapper
+            anchors.fill: parent
+
+            // Dark semi-transparent scrim / backdrop
+            Rectangle {
+                anchors.fill: parent
+                color: ColorUtils.transparentize(Appearance.colors.colLayer0, 0.45)
+            }
+
+            // Click outside to dismiss
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: {
+                    GlobalStates.wallpaperSelectorOpen = false;
+                }
+            }
+
+            Item {
+                id: selectorContainer
+                width: Math.min(parent.width - 32, Appearance.sizes.wallpaperSelectorWidth)
+                height: Math.min(parent.height - 120, Appearance.sizes.wallpaperSelectorHeight)
+                anchors.top: parent.top
+                anchors.topMargin: 20
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                property bool monitorIsFocused: true
+
+                WallpaperSelectorContent {
+                    id: selectorContent
+                    anchors.fill: parent
+
+                    property bool monitorIsFocused: true
+
+                    Component.onCompleted: {
+                        slideIn();
+                    }
+
+                    function slideIn() {
+                        selectorContent.y = -selectorContent.height;
+                        Qt.callLater(() => { selectorContent.y = 0; });
+                    }
+
+                    Connections {
+                        target: GlobalStates
+                        function onWallpaperSelectorOpenChanged() {
+                            if (!GlobalStates.wallpaperSelectorOpen) {
+                                selectorContent.y = -selectorContent.height;
+                            }
+                        }
+                    }
+
+                    Behavior on y {
+                        NumberAnimation {
+                            duration: Appearance.animation.sidebarSlideExit.duration
+                            easing.type: GlobalStates.wallpaperSelectorOpen
+                                ? Appearance.animation.sidebarSlideEnter.type
+                                : Appearance.animation.sidebarSlideExit.type
+                            easing.bezierCurve: GlobalStates.wallpaperSelectorOpen
+                                ? Appearance.animation.sidebarSlideEnter.bezierCurve
+                                : Appearance.animation.sidebarSlideExit.bezierCurve
+                        }
+                    }
+                }
+            }
         }
     }
 }

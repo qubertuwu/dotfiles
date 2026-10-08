@@ -28,12 +28,25 @@ Singleton {
     property bool regionSelectorOpen: false
     property bool searchOpen: false
     property bool screenLocked: false
+    onScreenLockedChanged: {
+        if (wallpaperSelectorOpen) {
+            wallpaperSelectorOpen = false;
+        }
+        wallpaperSelectorTarget = screenLocked ? "lockWall" : "wallpaper";
+        if (!screenLocked) {
+            MaterialThemeLoader.useLiveTheme();
+        } else if (Config.options.background.lockWall && Config.options.background.lockWall.length > 0) {
+            MaterialThemeLoader.useLockTheme();
+        }
+    }
     property bool screenLockContainsCharacters: false
     property bool screenUnlockFailed: false
     property bool screenTranslatorOpen: false
     property bool translatorOpen: false
     property string translatorSourceLang: "en"
     property string translatorTargetLang: "ru"
+    property bool translatorCodeMode: false
+    property string translatorCodeCase: "pascal"
     property bool sessionOpen: false
     property bool superDown: false
     property bool superReleaseMightTrigger: true

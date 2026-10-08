@@ -167,7 +167,7 @@ create_bind(vars.kbFileExplorer, hl.dsp.exec_cmd(vars.fileExplorer))
 create_bind(vars.kbAudioSettings, hl.dsp.exec_cmd(vars.audioSettings))
 
 -- Utilities
-create_bind(vars.kbScreenshot, hl.dsp.exec_cmd("caelestia screenshot"), locked)
+create_bind(vars.kbScreenshot, hl.dsp.exec_cmd("grim - | swappy -f -"), locked)
 create_bind(vars.kbScreenshotFreeze, hl.dsp.exec_cmd("qs -c end4-pC ipc call region screenshot"))
 create_bind(vars.kbScreenshotRegion, hl.dsp.exec_cmd("qs -c end4-pC ipc call region screenshot"))
 create_bind(vars.kbRecord, hl.dsp.exec_cmd("caelestia record"))
@@ -237,7 +237,7 @@ create_bind({ "SUPER + SHIFT + T", "SUPER + SHIFT + Cyrillic_ie" }, hl.dsp.exec_
 create_bind({ "SUPER + I", "SUPER + Cyrillic_sha", "SUPER + escape" }, hl.dsp.global("quickshell:settingsToggle"))
 
 -- Wallpaper Selector (Wallpaper Engine / Themes)
-create_bind({ "SUPER + W", "SUPER + Cyrillic_tse" }, hl.dsp.global("quickshell:wallpaperSelectorToggle"))
+create_bind({ "SUPER + W", "SUPER + Cyrillic_tse" }, hl.dsp.global("quickshell:wallpaperSelectorToggle"), locked)
 
 -- Media Controls Player Popup
 create_bind({ "SUPER + M", "SUPER + Cyrillic_softsign" }, hl.dsp.exec_cmd("qs -c end4-pC ipc call mediaControls toggle"))

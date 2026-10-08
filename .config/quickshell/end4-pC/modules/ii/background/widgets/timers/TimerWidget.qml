@@ -31,6 +31,8 @@ AbstractBackgroundWidget {
         property int shape: MaterialShape.Shape.Cookie12Sided
         property color bgColor: Appearance.colors.colPrimaryContainer
         property color shapeColor: Appearance.colors.colPrimary
+        property color fgColor: Appearance.colors.colOnPrimaryContainer
+        property color onShapeColor: Appearance.colors.colOnPrimary
         property var onToggle: () => {}
         property var onReset: () => {}
         default property alias extraContent: extraSlot.data
@@ -79,7 +81,7 @@ AbstractBackgroundWidget {
                 MaterialShapeWrappedMaterialSymbol {
                     shape: timerCard.shape
                     color: timerCard.shapeColor
-                    colSymbol: Appearance.colors.colOnPrimary
+                    colSymbol: timerCard.onShapeColor
                     text: timerCard.running ? "pause" : timerCard.icon
                     iconSize: 18
                     fill: 1
@@ -106,14 +108,14 @@ AbstractBackgroundWidget {
                     font.pixelSize: Appearance.font.pixelSize.large
                     font.weight: Font.Bold
                     font.features: { "tnum": 1 }
-                    color: Appearance.colors.colOnPrimaryContainer
+                    color: timerCard.fgColor
                 }
 
                 StyledText {
                     text: timerCard.label
                     font.pixelSize: Appearance.font.pixelSize.small
-                    color: Appearance.colors.colOnPrimaryContainer
-                    opacity: 0.6
+                    color: timerCard.fgColor
+                    opacity: 0.7
                 }
             }
 
@@ -144,6 +146,8 @@ AbstractBackgroundWidget {
             running: TimerService.pomodoroRunning
             bgColor: Appearance.colors.colTertiaryContainer
             shapeColor: Appearance.colors.colTertiary
+            fgColor: Appearance.colors.colOnTertiaryContainer
+            onShapeColor: Appearance.colors.colOnTertiary
             shape: MaterialShape.Shape.Flower
             onToggle: () => TimerService.togglePomodoro()
             onReset: () => TimerService.resetPomodoro()
@@ -158,6 +162,8 @@ AbstractBackgroundWidget {
             shape: MaterialShape.Shape.Sunny
             bgColor: Appearance.colors.colSecondaryContainer
             shapeColor: Appearance.colors.colSecondary
+            fgColor: Appearance.colors.colOnSecondaryContainer
+            onShapeColor: Appearance.colors.colOnSecondary
             onToggle: () => TimerService.toggleStopwatch()
             onReset: () => TimerService.stopwatchReset()
         }
@@ -169,6 +175,10 @@ AbstractBackgroundWidget {
             label: "Countdown"
             running: TimerService.countdownRunning
             shape: MaterialShape.Shape.Bun
+            bgColor: Appearance.colors.colPrimaryContainer
+            shapeColor: Appearance.colors.colPrimary
+            fgColor: Appearance.colors.colOnPrimaryContainer
+            onShapeColor: Appearance.colors.colOnPrimary
             onToggle: () => TimerService.toggleCountdown()
             onReset: () => TimerService.resetCountdown()
 

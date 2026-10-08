@@ -31,6 +31,8 @@ AbstractBackgroundWidget {
         property int shape: MaterialShape.Shape.Cookie12Sided
         property color bgColor: Appearance.colors.colPrimaryContainer
         property color shapeColor: Appearance.colors.colPrimary
+        property color fgColor: Appearance.colors.colOnPrimaryContainer
+        property color onShapeColor: Appearance.colors.colOnPrimary
 
         implicitWidth: root.cardWidth
         implicitHeight: root.cardHeight
@@ -64,7 +66,7 @@ AbstractBackgroundWidget {
                 Layout.alignment: Qt.AlignRight
                 shape: statCard.shape
                 color: statCard.shapeColor
-                colSymbol: Appearance.colors.colOnPrimary
+                colSymbol: statCard.onShapeColor
                 text: statCard.icon
                 iconSize: 18
                 fill: 1
@@ -79,14 +81,14 @@ AbstractBackgroundWidget {
                 text: statCard.value
                 font.pixelSize: Appearance.font.pixelSize.hugeass
                 font.weight: Font.Bold
-                color: Appearance.colors.colOnPrimaryContainer
+                color: statCard.fgColor
             }
 
             StyledText {
                 text: statCard.label
                 font.pixelSize: Appearance.font.pixelSize.small
-                color: Appearance.colors.colOnPrimaryContainer
-                opacity: 0.6
+                color: statCard.fgColor
+                opacity: 0.7
             }
         }
     }
@@ -106,6 +108,10 @@ AbstractBackgroundWidget {
             value: Math.round(ResourceUsage.cpuUsage * 100) + "%"
             label: "CPU"
             shape: MaterialShape.Shape.Gem
+            bgColor: Appearance.colors.colPrimaryContainer
+            shapeColor: Appearance.colors.colPrimary
+            fgColor: Appearance.colors.colOnPrimaryContainer
+            onShapeColor: Appearance.colors.colOnPrimary
         }
         StatCard {
             icon: "memory"
@@ -114,6 +120,8 @@ AbstractBackgroundWidget {
             shape: MaterialShape.Shape.Cookie4Sided
             bgColor: Appearance.colors.colSecondaryContainer
             shapeColor: Appearance.colors.colSecondary
+            fgColor: Appearance.colors.colOnSecondaryContainer
+            onShapeColor: Appearance.colors.colOnSecondary
         }
         StatCard {
             icon: root.hasBattery ? "battery_full" : "storage"
@@ -124,6 +132,8 @@ AbstractBackgroundWidget {
             shape: MaterialShape.Shape.Cookie12Sided
             bgColor: Appearance.colors.colTertiaryContainer
             shapeColor: Appearance.colors.colTertiary
+            fgColor: Appearance.colors.colOnTertiaryContainer
+            onShapeColor: Appearance.colors.colOnTertiary
         }
     }
     Rectangle {

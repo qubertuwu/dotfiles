@@ -3,6 +3,9 @@ import argparse
 import math
 import json
 import os
+import hashlib
+import warnings
+warnings.filterwarnings("ignore")
 from PIL import Image
 from materialyoucolor.quantize import QuantizeCelebi
 from materialyoucolor.score.score import Score
@@ -10,6 +13,17 @@ from materialyoucolor.hct import Hct
 from materialyoucolor.dynamiccolor.material_dynamic_colors import MaterialDynamicColors
 from materialyoucolor.utils.color_utils import (rgba_from_argb, argb_from_rgb, argb_from_rgba)
 from materialyoucolor.utils.math_utils import (sanitize_degrees_double, difference_degrees, rotation_direction)
+
+CURATED_DARK_ACCENTS = [
+    Hct.from_hct(195.0, 75.0, 60.0),  # Electric Cyan
+    Hct.from_hct(280.0, 75.0, 62.0),  # Neon Violet
+    Hct.from_hct(340.0, 78.0, 62.0),  # Sunset Rose
+    Hct.from_hct(45.0, 80.0, 65.0),   # Radiant Amber / Gold
+    Hct.from_hct(225.0, 75.0, 62.0),  # Vivid Azure / Neon Blue
+    Hct.from_hct(155.0, 75.0, 60.0),  # Electric Emerald
+    Hct.from_hct(315.0, 75.0, 62.0),  # Neon Magenta
+    Hct.from_hct(18.0, 80.0, 60.0),   # Crimson Flame
+]
 
 parser = argparse.ArgumentParser(description='Color generation script')
 parser.add_argument('--path', type=str, default=None, help='generate colorscheme from image')
@@ -75,16 +89,54 @@ if args.path is not None:
     wsize_new, hsize_new = calculate_optimal_size(wsize, hsize, args.size)
     if wsize_new < wsize or hsize_new < hsize:
         image = image.resize((wsize_new, hsize_new), Image.Resampling.BICUBIC)
-    colors = QuantizeCelebi(list(image.getdata()), 128)
-    argb = Score.score(colors)[0]
+    raw_pixels = list(image.getdata()) if hasattr(image, "getdata") else []
+    colors = QuantizeCelebi(raw_pixels, 128)
+
+    # Average brightness of the image
+    avg_lum = sum(0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2] for p in raw_pixels) / len(raw_pixels) if raw_pixels else 50.0
+
+    # Search for salient accent colors in the image (even small details like glowing eyes, neon, flame, lights)
+    accent_candidates = []
+    for c, pop in colors.items():
+        h = Hct.from_int(c)
+        if h.chroma >= 8.0 and 8.0 <= h.tone <= 92.0:
+            accent_candidates.append((h, pop))
+
+    max_chroma = max([h.chroma for h, _ in accent_candidates], default=0.0)
+    is_dark_or_monochrome = (avg_lum < 45.0 and max_chroma < 28.0) or (max_chroma < 22.0)
+
+    scored_argb = Score.score(colors)[0]
+    scored_hct = Hct.from_int(scored_argb)
+    score_ignored_accents = (scored_argb == 0xff4285f4 and max_chroma >= 10.0)
+
+    if is_dark_or_monochrome or score_ignored_accents or (avg_lum < 45.0 and scored_hct.chroma < 20.0):
+        if accent_candidates:
+            # Sort candidates by chroma and population to pick the most striking accent
+            accent_candidates.sort(key=lambda x: x[0].chroma * math.log(x[1] + 1.5), reverse=True)
+            chosen_hct = accent_candidates[0][0]
+            # Boost chroma so subtle accents flourish into vibrant themes
+            boosted_chroma = max(chosen_hct.chroma * 1.6, 65.0)
+            hct = Hct.from_hct(chosen_hct.hue, min(boosted_chroma, 90.0), max(52.0, min(chosen_hct.tone, 68.0)))
+            argb = hct.to_int()
+        else:
+            # Pure monochrome / black & white: pick a deterministic vibrant accent from curated list
+            h_idx = int(hashlib.md5(os.path.basename(args.path).encode('utf-8')).hexdigest(), 16) % len(CURATED_DARK_ACCENTS)
+            hct = CURATED_DARK_ACCENTS[h_idx]
+            argb = hct.to_int()
+        
+        # When wallpaper is dark/monochrome, use SchemeFidelity for rich, multi-colored primary, secondary, and tertiary
+        if args.scheme in ['scheme-tonal-spot', 'scheme-neutral', 'auto', 'tonal-spot', 'vibrant']:
+            args.scheme = 'scheme-fidelity'
+    else:
+        argb = scored_argb
+        hct = scored_hct
+        if(args.smart):
+            if(hct.chroma < 20):
+                args.scheme = 'neutral'
 
     if args.cache is not None:
         with open(args.cache, 'w') as file:
             file.write(argb_to_hex(argb))
-    hct = Hct.from_int(argb)
-    if(args.smart):
-        if(hct.chroma < 20):
-            args.scheme = 'neutral'
 elif args.color is not None:
     argb = hex_to_argb(args.color)
     hct = Hct.from_int(argb)

@@ -24,24 +24,30 @@ Scope {
             GlobalStates.translatorOpen = true;
             let clean = text ? text.trim() : "";
             if (clean.length > 0) {
-                let hasCyrillic = /[а-яёА-ЯЁ]/.test(clean);
-                if (hasCyrillic) {
-                    card.sourceLang = "ru";
-                    card.targetLang = "en";
-                } else {
-                    card.sourceLang = "en";
-                    card.targetLang = "ru";
-                }
                 sourceInput.text = clean;
                 sourceInput.selectAll();
+                if (card.codeMode) {
+                    card.sourceLang = "ru";
+                    card.targetLang = "en";
+                } else if (card.isAutoLang) {
+                    card.autoDetectLanguage(clean);
+                }
                 card.translate();
             }
         }
+
+        function setCodeMode(enabled: bool): void {
+            card.codeMode = enabled;
+        }
+
+        function setCodeCase(c: string): void {
+            card.codeCase = c;
+        }
     }
 
-    readonly property real popupWidth: 480
-    readonly property real popupHeight: 520
-    readonly property real popupRounding: Appearance.rounding.window
+    readonly property real popupWidth: 620
+    readonly property real popupHeight: 600
+    readonly property real popupRounding: Appearance.rounding.windowRounding
 
     PanelWindow {
         id: panelWindow
@@ -86,7 +92,7 @@ Scope {
             width: root.popupWidth
             height: root.popupHeight
             radius: root.popupRounding
-            color: ColorUtils.applyAlpha(Appearance.colors.colLayer1Base, 0.96)
+            color: Appearance.colors.colLayer1Base
             border.color: Appearance.colors.colLayer0Border
             border.width: 1
 
@@ -116,26 +122,108 @@ Scope {
             property string sourceLang: GlobalStates.translatorSourceLang || "en"
             property string targetLang: GlobalStates.translatorTargetLang || "ru"
             property string translatedText: ""
+            property string rawTranslatedText: ""
+            property bool codeMode: GlobalStates.translatorCodeMode
+            property string codeCase: GlobalStates.translatorCodeCase || "pascal"
+            property var codeIdentifiers: TechGlossary.getCodeIdentifiers(
+                rawTranslatedText && rawTranslatedText.trim().length > 0
+                    ? rawTranslatedText
+                    : (card.targetLang === "en" || card.codeMode ? card.translatedText : "")
+            )
             property bool isTranslating: false
             property bool showCopied: false
             property bool itMode: true
+            property bool isAutoLang: true
+            property string detectedLang: ""
+
+            onCodeModeChanged: {
+                GlobalStates.translatorCodeMode = card.codeMode;
+                card.updateOutput();
+            }
+            onCodeCaseChanged: {
+                GlobalStates.translatorCodeCase = card.codeCase;
+                card.updateOutput();
+            }
+
+            function updateOutput() {
+                if (!card.rawTranslatedText || card.rawTranslatedText.trim().length === 0) {
+                    card.translatedText = "";
+                    return;
+                }
+
+                if (card.codeMode) {
+                    let ids = TechGlossary.getCodeIdentifiers(card.rawTranslatedText);
+                    let val = "";
+                    if (card.codeCase === "pascal") val = ids.pascal;
+                    else if (card.codeCase === "camel") val = ids.camel;
+                    else if (card.codeCase === "snake") val = ids.snake;
+                    else if (card.codeCase === "screaming") val = ids.screaming;
+                    else if (card.codeCase === "kebab") val = ids.kebab;
+
+                    card.translatedText = val || ids.pascal || card.rawTranslatedText;
+                } else {
+                    card.translatedText = card.rawTranslatedText;
+                }
+            }
+
+            function autoDetectLanguage(text) {
+                if (!text || text.trim().length === 0) return;
+                let clean = text.trim();
+                let cyrMatches = clean.match(/[а-яёА-ЯЁ]/g);
+                let latMatches = clean.match(/[a-zA-Z]/g);
+                let cyrCount = cyrMatches ? cyrMatches.length : 0;
+                let latCount = latMatches ? latMatches.length : 0;
+                if (cyrCount > latCount) {
+                    card.sourceLang = "ru";
+                    card.targetLang = "en";
+                } else {
+                    card.sourceLang = "en";
+                    card.targetLang = "ru";
+                }
+            }
 
             function translate() {
-                let text = sourceInput.text ? sourceInput.text.trim() : "";
-                if (text.length === 0) {
+                let rawText = sourceInput.text ? sourceInput.text.trim() : "";
+                if (rawText.length === 0) {
+                    card.rawTranslatedText = "";
                     card.translatedText = "";
                     card.isTranslating = false;
                     return;
                 }
+
+                // Smart sentence unwrapping to fix broken OCR line-breaks
+                let text = TechGlossary.smartUnwrap(rawText);
+                let cyrMatches = text.match(/[а-яёА-ЯЁ]/g);
+                let latMatches = text.match(/[a-zA-Z]/g);
+                let cyrCount = cyrMatches ? cyrMatches.length : 0;
+                let latCount = latMatches ? latMatches.length : 0;
+
+                if (card.codeMode) {
+                    if (cyrCount === 0 && latCount > 0) {
+                        card.isTranslating = false;
+                        card.sourceLang = "en";
+                        card.targetLang = "en";
+                        card.rawTranslatedText = text;
+                        card.updateOutput();
+                        return;
+                    } else {
+                        card.sourceLang = "ru";
+                        card.targetLang = "en";
+                    }
+                } else if (card.isAutoLang) {
+                    card.autoDetectLanguage(text);
+                }
+
                 card.isTranslating = true;
+                let slParam = (card.isAutoLang && !card.codeMode) ? "auto" : card.sourceLang;
                 let url = "https://clients5.google.com/translate_a/t?client=dict-chrome-ex"
-                    + "&sl=" + encodeURIComponent(card.sourceLang)
+                    + "&sl=" + encodeURIComponent(slParam)
                     + "&tl=" + encodeURIComponent(card.targetLang)
                     + "&q=" + encodeURIComponent(text);
 
                 let xhr = new XMLHttpRequest();
                 xhr.open("GET", url);
-                xhr.setRequestHeader("User-Agent", "Mozilla/5.0");
+                xhr.setRequestHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
                 xhr.timeout = 10000;
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -144,21 +232,43 @@ Scope {
                             try {
                                 let res = JSON.parse(xhr.responseText);
                                 let rawResult = "";
+                                let detected = "";
+
                                 if (Array.isArray(res)) {
-                                    rawResult = res.join("\n");
+                                    if (res.length > 0 && Array.isArray(res[0])) {
+                                        rawResult = res[0][0] || "";
+                                        detected = res[0][1] || "";
+                                    } else {
+                                        rawResult = res.join("\n");
+                                    }
                                 } else if (typeof res === "string") {
                                     rawResult = res;
                                 } else {
                                     rawResult = xhr.responseText;
                                 }
 
-                                if (card.itMode) {
-                                    card.translatedText = TechGlossary.enhance(text, rawResult, card.sourceLang, card.targetLang);
-                                } else {
-                                    card.translatedText = rawResult;
+                                if (detected && detected.length > 0) {
+                                    card.detectedLang = detected;
+                                    if (card.isAutoLang && !card.codeMode) {
+                                        if (detected === "ru") {
+                                            card.sourceLang = "ru";
+                                            card.targetLang = "en";
+                                        } else {
+                                            card.sourceLang = detected;
+                                            card.targetLang = "ru";
+                                        }
+                                    }
                                 }
+
+                                if (card.itMode) {
+                                    card.rawTranslatedText = TechGlossary.enhance(text, rawResult, card.sourceLang, card.targetLang);
+                                } else {
+                                    card.rawTranslatedText = rawResult;
+                                }
+                                card.updateOutput();
                             } catch(e) {
-                                card.translatedText = xhr.responseText;
+                                card.rawTranslatedText = xhr.responseText;
+                                card.updateOutput();
                             }
                         } else {
                             card.translatedText = "Ошибка соединения (" + xhr.status + ")";
@@ -177,15 +287,18 @@ Scope {
             }
 
             function swap() {
+                card.isAutoLang = false;
                 let temp = card.sourceLang;
                 card.sourceLang = card.targetLang;
                 card.targetLang = temp;
                 GlobalStates.translatorSourceLang = card.sourceLang;
                 GlobalStates.translatorTargetLang = card.targetLang;
 
-                if (card.translatedText.length > 0) {
-                    let oldTranslation = card.translatedText;
-                    sourceInput.text = oldTranslation;
+                if (card.rawTranslatedText && card.rawTranslatedText.length > 0) {
+                    sourceInput.text = card.rawTranslatedText;
+                    card.translate();
+                } else if (card.translatedText.length > 0) {
+                    sourceInput.text = card.translatedText;
                     card.translate();
                 } else if (sourceInput.text.trim().length > 0) {
                     card.translate();
@@ -221,6 +334,9 @@ Scope {
                     if (code === 0 && clean.length > 0 && clean !== "Nothing is copied") {
                         sourceInput.text = clean;
                         sourceInput.cursorPosition = clean.length;
+                        if (card.isAutoLang) {
+                            card.autoDetectLanguage(clean);
+                        }
                         card.translate();
                     }
                 }
@@ -240,16 +356,11 @@ Scope {
                     let clean = pastePrimaryProc.buffer.trim();
                     pastePrimaryProc.buffer = "";
                     if (code === 0 && clean.length > 0 && clean !== "Nothing is copied") {
-                        let hasCyrillic = /[а-яёА-ЯЁ]/.test(clean);
-                        if (hasCyrillic) {
-                            card.sourceLang = "ru";
-                            card.targetLang = "en";
-                        } else {
-                            card.sourceLang = "en";
-                            card.targetLang = "ru";
-                        }
                         sourceInput.text = clean;
                         sourceInput.selectAll();
+                        if (card.isAutoLang) {
+                            card.autoDetectLanguage(clean);
+                        }
                         card.translate();
                     }
                 }
@@ -265,7 +376,7 @@ Scope {
                 // ==========================================
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: 10
+                    spacing: 6
 
                     Rectangle {
                         implicitWidth: 32
@@ -311,13 +422,15 @@ Scope {
                             StyledText {
                                 text: "IT-сленг"
                                 font.pixelSize: 11
-                                font.weight: Font.SemiBold
+                                font.weight: Font.DemiBold
                                 color: card.itMode ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colSubtext
                             }
                         }
 
                         MouseArea {
+                            id: itMouse
                             anchors.fill: parent
+                            hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
                                 card.itMode = !card.itMode;
@@ -328,7 +441,115 @@ Scope {
                         }
 
                         StyledToolTip {
+                            extraVisibleCondition: itMouse.containsMouse
                             text: card.itMode ? "IT-режим включен (сленг программистов и термины)" : "Включить адаптацию IT-сленга"
+                        }
+                    }
+
+                    // Auto-Language Mode toggle chip
+                    Rectangle {
+                        implicitHeight: 24
+                        implicitWidth: autoRow.implicitWidth + 14
+                        radius: Appearance.rounding.full
+                        color: card.isAutoLang ? Appearance.colors.colPrimaryContainer : Appearance.colors.colLayer1
+                        border.color: card.isAutoLang ? Appearance.colors.colPrimary : Appearance.colors.colLayer0Border
+                        border.width: 1
+
+                        RowLayout {
+                            id: autoRow
+                            anchors.centerIn: parent
+                            spacing: 4
+
+                            MaterialSymbol {
+                                text: "auto_mode"
+                                iconSize: 13
+                                color: card.isAutoLang ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colSubtext
+                            }
+
+                            StyledText {
+                                text: "Авто"
+                                font.pixelSize: 11
+                                font.weight: Font.DemiBold
+                                color: card.isAutoLang ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colSubtext
+                            }
+                        }
+
+                        MouseArea {
+                            id: autoMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                card.isAutoLang = !card.isAutoLang;
+                                if (card.isAutoLang && sourceInput.text.trim().length > 0) {
+                                    card.autoDetectLanguage(sourceInput.text);
+                                }
+                                if (sourceInput.text.trim().length > 0) {
+                                    card.translate();
+                                }
+                            }
+                        }
+
+                        StyledToolTip {
+                            extraVisibleCondition: autoMouse.containsMouse
+                            text: card.isAutoLang ? "Автоматическое определение языка включено" : "Включить автоопределение языка"
+                        }
+                    }
+
+                    // Variable / Code Naming Mode toggle chip
+                    Rectangle {
+                        implicitHeight: 24
+                        implicitWidth: codeRow.implicitWidth + 14
+                        radius: Appearance.rounding.full
+                        color: card.codeMode ? Appearance.colors.colPrimaryContainer : Appearance.colors.colLayer1
+                        border.color: card.codeMode ? Appearance.colors.colPrimary : Appearance.colors.colLayer0Border
+                        border.width: 1
+
+                        RowLayout {
+                            id: codeRow
+                            anchors.centerIn: parent
+                            spacing: 4
+
+                            MaterialSymbol {
+                                text: "data_object"
+                                iconSize: 13
+                                color: card.codeMode ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colSubtext
+                            }
+
+                            StyledText {
+                                text: "Код"
+                                font.pixelSize: 11
+                                font.weight: Font.DemiBold
+                                color: card.codeMode ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colSubtext
+                            }
+                        }
+
+                        MouseArea {
+                            id: codeChipMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                card.codeMode = !card.codeMode;
+                                if (card.codeMode) {
+                                    let clean = sourceInput.text.trim();
+                                    let cyr = clean.match(/[а-яёА-ЯЁ]/g);
+                                    if (cyr && cyr.length > 0) {
+                                        card.sourceLang = "ru";
+                                        card.targetLang = "en";
+                                    }
+                                }
+                                if (sourceInput.text.trim().length > 0) {
+                                    card.translate();
+                                }
+                            }
+                        }
+
+                        StyledToolTip {
+                            extraVisibleCondition: codeChipMouse.containsMouse
+                            text: card.codeMode 
+                                ? "Режим имён переменных активен (PascalCase, camelCase и др.)" 
+                                : "Включить режим имён переменных для кода (PascalCase, camelCase)"
                         }
                     }
 
@@ -365,7 +586,7 @@ Scope {
                     Layout.fillWidth: true
                     implicitHeight: 40
                     radius: Appearance.rounding.normal
-                    color: ColorUtils.applyAlpha(Appearance.colors.colLayer2Base, 0.94)
+                    color: Appearance.colors.colLayer2Base
 
                     RowLayout {
                         anchors.fill: parent
@@ -381,7 +602,10 @@ Scope {
 
                             StyledText {
                                 anchors.centerIn: parent
-                                text: card.sourceLang === "en" ? "Английский (EN)" : "Русский (RU)"
+                                text: {
+                                    let label = (card.sourceLang === "en" ? "Английский (EN)" : (card.sourceLang === "ru" ? "Русский (RU)" : card.sourceLang.toUpperCase()));
+                                    return card.isAutoLang ? ("Авто: " + label) : label;
+                                }
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 font.weight: Font.Medium
                                 color: card.sourceLang === "en" ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colOnLayer1
@@ -436,7 +660,7 @@ Scope {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     radius: Appearance.rounding.normal
-                    color: ColorUtils.applyAlpha(Appearance.colors.colLayer2Base, 0.94)
+                    color: Appearance.colors.colLayer2Base
                     border.color: sourceInput.activeFocus ? Appearance.colors.colPrimary : Appearance.colors.colLayer0Border
                     border.width: sourceInput.activeFocus ? 2 : 1
 
@@ -562,6 +786,9 @@ Scope {
                                 rightPadding: 2
 
                                 onTextChanged: {
+                                    if (card.isAutoLang && sourceInput.text.trim().length > 0) {
+                                        card.autoDetectLanguage(sourceInput.text);
+                                    }
                                     debounceTimer.restart();
                                 }
 
@@ -597,7 +824,7 @@ Scope {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     radius: Appearance.rounding.normal
-                    color: ColorUtils.applyAlpha(Appearance.colors.colLayer2Base, 0.94)
+                    color: Appearance.colors.colLayer2Base
                     border.color: Appearance.colors.colLayer0Border
                     border.width: 1
 
@@ -612,7 +839,9 @@ Scope {
                             spacing: 8
 
                             StyledText {
-                                text: card.targetLang === "ru" ? "Перевод (Русский)" : "Перевод (Английский)"
+                                text: card.codeMode
+                                    ? ("Имя в коде (" + (card.codeCase === "pascal" ? "PascalCase" : (card.codeCase === "camel" ? "camelCase" : (card.codeCase === "snake" ? "snake_case" : (card.codeCase === "screaming" ? "CONST_CASE" : "kebab-case")))) + ")")
+                                    : (card.targetLang === "ru" ? "Перевод (Русский)" : "Перевод (Английский)")
                                 font.pixelSize: Appearance.font.pixelSize.smaller
                                 font.weight: Font.DemiBold
                                 color: Appearance.colors.colPrimary
@@ -692,8 +921,9 @@ Scope {
                                 readOnly: true
                                 wrapMode: TextEdit.Wrap
                                 text: card.translatedText
-                                placeholderText: "Перевод появится здесь..."
+                                placeholderText: card.codeMode ? "Имя переменной появится здесь..." : "Перевод появится здесь..."
                                 font.pixelSize: Appearance.font.pixelSize.normal
+                                font.family: card.codeMode ? Appearance.font.family.monospace : Appearance.font.family.main
                                 font.weight: card.translatedText.length > 0 ? Font.Medium : Font.Normal
                                 color: card.translatedText.length > 0 ? Appearance.colors.colOnLayer2 : Appearance.colors.colSubtext
                                 placeholderTextColor: Appearance.colors.colSubtext
@@ -705,9 +935,103 @@ Scope {
                                 rightPadding: 2
                             }
                         }
-                    }
+
+                        // Code naming formats bar (PascalCase, camelCase, snake_case, CONST_CASE, kebab-case)
+                        // Code naming formats bar (PascalCase, camelCase, snake_case, CONST_CASE, kebab-case)
+                        Rectangle {
+                            visible: !!(card.codeIdentifiers && card.codeIdentifiers.pascal && card.codeIdentifiers.pascal.length > 0)
+                            Layout.fillWidth: true
+                            implicitHeight: 44
+                            radius: Appearance.rounding.small
+                            color: Appearance.colors.colLayer1Base
+                            border.color: Appearance.colors.colLayer0Border
+                            border.width: 1
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.margins: 4
+                                spacing: 4
+
+                                Repeater {
+                                    model: [
+                                        { key: "pascal", label: "Pascal" },
+                                        { key: "camel", label: "camel" },
+                                        { key: "snake", label: "snake" },
+                                        { key: "screaming", label: "CONST" },
+                                        { key: "kebab", label: "kebab" }
+                                    ]
+
+                                    Rectangle {
+                                        id: segRect
+                                        required property var modelData
+                                        Layout.fillWidth: true
+                                        Layout.fillHeight: true
+                                        radius: Appearance.rounding.small - 2
+                                        color: (card.codeMode && card.codeCase === segRect.modelData.key)
+                                            ? Appearance.colors.colPrimaryContainer
+                                            : (segMouse.containsMouse ? Appearance.colors.colLayer1Hover : Appearance.colors.colLayer1)
+                                        border.color: (card.codeMode && card.codeCase === segRect.modelData.key)
+                                            ? Appearance.colors.colPrimary
+                                            : Appearance.colors.colLayer0Border
+                                        border.width: 1
+
+                                        ColumnLayout {
+                                            anchors.fill: parent
+                                            anchors.topMargin: 3
+                                            anchors.bottomMargin: 3
+                                            anchors.leftMargin: 4
+                                            anchors.rightMargin: 4
+                                            spacing: 1
+
+                                            StyledText {
+                                                Layout.fillWidth: true
+                                                horizontalAlignment: Text.AlignHCenter
+                                                text: segRect.modelData.label
+                                                font.pixelSize: 10
+                                                font.weight: Font.DemiBold
+                                                color: (card.codeMode && card.codeCase === segRect.modelData.key)
+                                                    ? Appearance.colors.colOnPrimaryContainer
+                                                    : Appearance.colors.colPrimary
+                                            }
+
+                                            StyledText {
+                                                Layout.fillWidth: true
+                                                horizontalAlignment: Text.AlignHCenter
+                                                text: (card.codeIdentifiers && card.codeIdentifiers[segRect.modelData.key]) ? card.codeIdentifiers[segRect.modelData.key] : ""
+                                                font.pixelSize: 10
+                                                font.family: Appearance.font.family.monospace
+                                                elide: Text.ElideRight
+                                                color: (card.codeMode && card.codeCase === segRect.modelData.key)
+                                                    ? Appearance.colors.colOnPrimaryContainer
+                                                    : Appearance.colors.colOnLayer1
+                                            }
+                                        }
+
+                                        MouseArea {
+                                            id: segMouse
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: {
+                                                let val = (card.codeIdentifiers && card.codeIdentifiers[segRect.modelData.key]) ? card.codeIdentifiers[segRect.modelData.key] : "";
+                                                if (val.length > 0) {
+                                                    card.codeCase = segRect.modelData.key;
+                                                    card.codeMode = true;
+                                                    card.translatedText = val;
+                                                    Quickshell.execDetached(["wl-copy", val]);
+                                                    card.showCopied = true;
+                                                    copiedTimer.restart();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                 }
             }
         }
     }
 }
+}
+

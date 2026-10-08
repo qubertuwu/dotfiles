@@ -52,8 +52,13 @@ Variants {
         property HyprlandMonitor monitor: Hyprland.monitorFor(modelData)
 
         property string effectiveWallpaperPath: {
-            if (GlobalStates.screenLocked && Config.options.background.lockWall !== "")
-                return Config.options.background.lockWall;
+            if (GlobalStates.screenLocked) {
+                if (Wallpapers.previewPath !== "")
+                    return Wallpapers.previewPath;
+                if (Config.options.background.lockWall !== "")
+                    return Config.options.background.lockWall;
+                return Wallpapers.confirmedPath || Config.options.background.wallpaperPath;
+            }
             return Wallpapers.previewPath || Wallpapers.confirmedPath || Config.options.background.wallpaperPath;
         }
 
@@ -236,6 +241,10 @@ Variants {
                         bgRoot.transitionPending = false
                         bgRoot.transitionProgress = 0.0
                         transitionAnim.restart()
+                    } else if ((status === Image.Error || status === Image.Null) && bgRoot.transitionPending) {
+                        bgRoot.transitionPending = false
+                        bgRoot.transitionProgress = 1.0
+                        bgRoot.videoRevealed = bgRoot.wallpaperIsVideo
                     }
                 }
             }

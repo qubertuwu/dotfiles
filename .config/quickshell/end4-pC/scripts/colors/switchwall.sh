@@ -157,10 +157,9 @@ export PATH="\$HOME/.local/bin:\$PATH"
 pkill -x mpvpaper || true
 
 for monitor in \$(hyprctl monitors -j | jq -r '.[] | .name'); do
-    nohup mpvpaper -o "$VIDEO_OPTS" "\$monitor" "$video_path" >/dev/null 2>&1 &
+    mpvpaper --fork -o "$VIDEO_OPTS" "\$monitor" "$video_path"
     sleep 0.1
 done
-disown -a
 EOF
     mv "$RESTORE_SCRIPT.tmp" "$RESTORE_SCRIPT"
     chmod +x "$RESTORE_SCRIPT"
@@ -273,14 +272,13 @@ switch() {
                 local video_path="$imgpath"
                 monitors=$(hyprctl monitors -j | jq -r '.[] | .name')
                 for monitor in $monitors; do
-                    nohup mpvpaper -o "$VIDEO_OPTS" "$monitor" "$video_path" >/dev/null 2>&1 &
+                    mpvpaper --fork -o "$VIDEO_OPTS" "$monitor" "$video_path"
                     sleep 0.1
                 done
-                disown -a
             fi
 
             thumbnail="$THUMBNAIL_DIR/$(basename "$imgpath").jpg"
-            ffmpeg -y -ss 00:00:05 -i "$imgpath" -vframes 1 -vf "scale=2560:1440:flags=lanczos,format=yuvj420p" -q:v 2 "$thumbnail" 2>/dev/null \
+            ffmpeg -y -ss 00:00:01 -i "$imgpath" -vframes 1 -vf "scale=2560:1440:flags=lanczos,format=yuvj420p" -q:v 2 "$thumbnail" 2>/dev/null \
                 || ffmpeg -y -i "$imgpath" -vframes 1 -vf "scale=2560:1440:flags=lanczos,format=yuvj420p" -q:v 2 "$thumbnail" 2>/dev/null
 
             if [[ -z "$colors_only_flag" ]]; then

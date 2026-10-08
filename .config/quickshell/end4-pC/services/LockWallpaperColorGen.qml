@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.services
 import qs.modules.common
 import qs.modules.common.functions
 
@@ -23,7 +24,11 @@ Singleton {
     Process {
         id: genProc
         onExited: (exitCode) => {
-            if (exitCode !== 0) console.warn("[LockWallpaperColorGen] switchwall.sh --colors_lock failed")
+            if (exitCode === 0) {
+                MaterialThemeLoader.useLockTheme();
+            } else {
+                console.warn("[LockWallpaperColorGen] switchwall.sh --colors_lock failed")
+            }
         }
     }
 }

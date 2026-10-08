@@ -1,60 +1,71 @@
-# 🌌 Qubert's Dotfiles (Hyprland + Quickshell / Caelestia)
+# 🌌 Dotfiles Qubert (Hyprland + Quickshell / Caelestia)
 
-Полный комплект моей рабочей оболочки для Linux под управлением **Hyprland** и **Quickshell**.
+Полноценная конфигурация рабочего окружения **Hyprland** с кастомной оболочкой на базе **Quickshell** (`end4-pC`), живыми обоями Wallpaper Engine, экранным переводчиком, интеграцией ИИ и виджетами.
 
-![Hyprland](https://img.shields.io/badge/WM-Hyprland-blue)
-![Shell](https://img.shields.io/badge/Shell-Quickshell%20%7C%20Caelestia-purple)
-![Terminal](https://img.shields.io/badge/Terminal-Foot%20%7C%20Alacritty-green)
-![Status](https://img.shields.io/badge/Status-Maintained-brightgreen)
+Поддерживает установку в **1 клик** на **Fedora Linux** и **Arch / CachyOS**.
 
 ---
 
-## 🚀 Быстрая установка на новый ПК (в одну команду)
+## ⚡ Быстрая установка в 1 команду
 
-Откройте терминал и выполните:
+На свежеустановленной системе (Fedora или Arch) открой терминал и выполни:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/qubertuwu/dotfiles/main/install.sh | bash
+bash <(curl -fsSL https://raw.githubusercontent.com/qubertuwu/dotfiles/main/install.sh)
 ```
 
-*Или через ручное клонирование:*
+Или вручную:
 ```bash
-git clone https://github.com/qubertuwu/dotfiles.git
-cd dotfiles
+git clone --depth 1 https://github.com/qubertuwu/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
 ./install.sh
 ```
 
-> **Примечание:** Скрипт автоматически создаст резервную копию ваших текущих конфигов в `~/.config/dotfiles_backup_<дата>/` перед заменой.
+---
+
+## 🧩 Что входит в состав:
+
+- **Оконный менеджер:** Hyprland
+- **Оболочка / виджеты:** Quickshell (`end4-pC` / `caelestia`)
+- **Меню приложений:** Fuzzel
+- **Терминалы:** Foot / Alacritty
+- **Шелл:** Fish / Bash + Starship Prompt
+- **Скриншоты и аннотации:** Grim + Slurp + Swappy
+- **Переводчик:** Кастомный экранный OCR-переводчик (Tesseract RUS + ENG + Google Lens / API)
+- **Живые обои:** Селектор видео-обоев Wallpaper Engine / MPV
+- **ИИ-ассистент:** Интеграция боковой панели с DeepSeek R1 / OpenAI API
+- **Системный монитор:** btop, cava, fastfetch
 
 ---
 
-## 📦 Что входит в комплект:
+## ⌨️ Основные горячие клавиши:
 
-* 🪟 **Hyprland (`~/.config/hypr/`)**: Полная тайлинговая конфигурация на Lua с анимациями, сплитами, правилами окон и жестами.
-* 🪄 **Quickshell / Caelestia (`~/.config/quickshell/`)**: Кастомная панель задач, виджеты, оверлеи, центр уведомлений, слайдеры громкости и управление обоями.
-* 🌐 **Встроенный переводчик + Google Lens**:
-  * `Super + T` — перевод выделенного мышью текста в любой программе.
-  * `Super + Shift + T` — выделение любой прямоугольной области экрана рамкой (`slurp + grim + tesseract`).
-  * Встроенная база **IT-сленга** и терминов программирования.
-* 🖥️ **Терминалы (`foot`, `alacritty`)**: Настроенные цветовые схемы и шрифты.
-* 🐟 **Fish shell (`~/.config/fish/`)**: Конфигурация шелла и функций.
-* 📊 **Fastfetch (`~/.config/fastfetch/`)**: Кастомный вывод системной информации с поддержкой Sixels и картинок.
-
----
-
-## ⌨️ Основные горячие клавиши
-
-| Сочетание | Описание |
+| Комбинация | Действие |
 |---|---|
-| **`Super + T`** | Быстрый перевод выделенного текста |
-| **`Super + Shift + T`** | Перевод выбранной области экрана (Google Lens) |
-| **`Super + Return`** | Открыть терминал |
-| **`Super + Q`** | Закрыть активное окно |
-| **`Super + I`** | Настройки оболочки (Quickshell Settings) |
-| **`Super + W`** | Селектор живых и статичных обоев |
-| **`Super + M`** | Медиа-плеер и управление воспроизведением |
+| **Super + Space** | Меню запуска приложений (Fuzzel) |
+| **Super + Return** | Запуск терминала (Foot) |
+| **Super + W** | Селектор обоев (Wallpaper Engine) |
+| **Super + T** | Быстрый перевод выделенного текста |
+| **Super + Shift + T** | Перевод области экрана (OCR Google Lens) |
+| **Super + M** | Окно управления плеером (музыка / YouTube) |
+| **Super + I** / **Super + Esc** | Центр настроек оболочки (темы, размытие, анимации) |
+| **PrintScreen** | Скриншот области экрана с редактором Swappy |
+| **Super + Q** | Закрыть активное окно |
+| **Super + E** | Файловый менеджер (Dolphin / Thunar) |
 
 ---
 
-## 📄 Лицензия
-MIT License.
+## 📁 Структура репозитория
+
+```
+~/.config/
+├── hypr/               # Конфигурация Hyprland (Lua)
+├── quickshell/         # Оболочка end4-pC, виджеты, оверлеи
+├── caelestia/          # Пользовательские оверрайды переменных
+├── illogical-impulse/  # Настройки внешнего вида, шрифты, ИИ
+├── fuzzel/             # Стиль лаунчера приложений
+├── swappy/             # Настройки редактора скриншотов
+├── btop/               # Системный монитор и тема
+├── cava/               # Аудио-визуализатор
+└── starship.toml       # Кастомный промпт терминала
+```

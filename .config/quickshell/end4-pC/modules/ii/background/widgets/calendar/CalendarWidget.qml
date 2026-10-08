@@ -22,6 +22,10 @@ AbstractBackgroundWidget {
     readonly property real snapWidth3: singleWidth * 3 + cardSpacing * 2
 
     property string sizeMode: root.configEntry.sizeMode ?? "2x2"
+    property color cardBgColor: Appearance.colors.colTertiaryContainer
+    property color cardAccentColor: Appearance.colors.colTertiary
+    property color cardOnAccentColor: Appearance.colors.colOnTertiary
+    property color cardFgColor: Appearance.colors.colOnTertiaryContainer
 
     property real widgetWidth: {
         switch (root.sizeMode) {
@@ -123,7 +127,7 @@ AbstractBackgroundWidget {
         implicitWidth: 28
         implicitHeight: 28
         radius: 14
-        color: isToday ? Appearance.colors.colPrimary : "transparent"
+        color: isToday ? root.cardAccentColor : "transparent"
 
         StyledText {
             anchors.centerIn: parent
@@ -131,7 +135,7 @@ AbstractBackgroundWidget {
             font.pixelSize: Appearance.font.pixelSize.smaller
             font.weight: parent.bold || parent.isToday ? Font.Bold : Font.Normal
             color: parent.isToday
-                ? Appearance.colors.colOnPrimary
+                ? root.cardOnAccentColor
                 : Appearance.colors.colOnLayer0
             opacity: parent.currentMonth ? 1.0 : 0.3
         }
@@ -144,7 +148,7 @@ AbstractBackgroundWidget {
                       : root.sizeMode === "1x2" ? root.cardHeight
                       : root.cardHeight * 2 + root.cardSpacing
         radius: Appearance.rounding?.verylarge ?? 30
-        color: Appearance.colors.colPrimaryContainer
+        color: root.cardBgColor
 
         FastBlurred {
             anchors.fill: parent
@@ -187,7 +191,7 @@ AbstractBackgroundWidget {
                     Rectangle {
                         Layout.fillWidth: true
                         implicitHeight: parent.height * 0.35
-                        color: Appearance.colors.colPrimary
+                        color: root.cardAccentColor
                         topLeftRadius: card.radius
                         topRightRadius: card.radius
 
@@ -198,13 +202,13 @@ AbstractBackgroundWidget {
                                 text: root.today.toLocaleDateString(Qt.locale(), "MMM").toUpperCase()
                                 font.pixelSize: Appearance.font.pixelSize.normal
                                 font.weight: Font.Bold
-                                color: Appearance.colors.colOnPrimary
+                                color: root.cardOnAccentColor
                             }
                             StyledText {
                                 text: root.today.toLocaleDateString(Qt.locale(), "ddd").toUpperCase()
                                 font.pixelSize: Appearance.font.pixelSize.normal
                                 font.weight: Font.Bold
-                                color: Appearance.colors.colOnPrimary
+                                color: root.cardOnAccentColor
                                 opacity: 0.7
                             }
                         }
@@ -219,7 +223,7 @@ AbstractBackgroundWidget {
                             text: root.today.getDate()
                             font.pixelSize: 60
                             font.weight: Font.Bold
-                            color: Appearance.colors.colOnPrimaryContainer
+                            color: root.cardFgColor
                         }
                     }
                 }
@@ -238,7 +242,7 @@ AbstractBackgroundWidget {
                     implicitHeight: 28
                     implicitWidth: monthText.implicitWidth + 20
                     radius: Appearance.rounding.full
-                    color: Appearance.colors.colPrimary
+                    color: root.cardAccentColor
 
                     StyledText {
                         id: monthText
@@ -246,7 +250,7 @@ AbstractBackgroundWidget {
                         text: root.today.toLocaleDateString(Qt.locale(), "MMMM yyyy")
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: Font.Bold
-                        color: Appearance.colors.colOnPrimary
+                        color: root.cardOnAccentColor
                     }
                 }
 
@@ -267,7 +271,7 @@ AbstractBackgroundWidget {
                                 text: modelData
                                 font.pixelSize: Appearance.font.pixelSize.smaller
                                 font.weight: Font.Bold
-                                color: Appearance.colors.colOnPrimaryContainer
+                                color: root.cardFgColor
                                 opacity: 0.5
                             }
                         }
@@ -284,7 +288,7 @@ AbstractBackgroundWidget {
                                 anchors.centerIn: parent
                                 width: 28; height: 28
                                 radius: 14
-                                color: modelData.isToday ? Appearance.colors.colPrimary : "transparent"
+                                color: modelData.isToday ? root.cardAccentColor : "transparent"
 
                                 StyledText {
                                     anchors.centerIn: parent
@@ -292,8 +296,8 @@ AbstractBackgroundWidget {
                                     font.pixelSize: Appearance.font.pixelSize.smaller
                                     font.weight: modelData.isToday ? Font.Bold : Font.Normal
                                     color: modelData.isToday
-                                        ? Appearance.colors.colOnPrimary
-                                        : Appearance.colors.colOnPrimaryContainer
+                                        ? root.cardOnAccentColor
+                                        : root.cardFgColor
                                     opacity: modelData.currentMonth ? 1.0 : 0.3
                                 }
                             }
@@ -320,7 +324,7 @@ AbstractBackgroundWidget {
                         Layout.fillWidth: true
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Medium
-                        color: Appearance.colors.colOnPrimaryContainer
+                        color: root.cardFgColor
                         text: root.viewingDate.toLocaleDateString(Qt.locale(), "MMMM yyyy")
                     }
 
@@ -328,12 +332,12 @@ AbstractBackgroundWidget {
                         implicitWidth: 26; implicitHeight: 26; radius: 13
                         color: "transparent"
                         border.width: 1
-                        border.color: Appearance.colors.colPrimary
+                        border.color: root.cardAccentColor
                         MaterialSymbol {
                             anchors.centerIn: parent
                             text: "chevron_left"
                             iconSize: Appearance.font.pixelSize.normal
-                            color: Appearance.colors.colOnPrimaryContainer
+                            color: root.cardFgColor
                         }
                         MouseArea {
                             anchors.fill: parent
@@ -346,12 +350,12 @@ AbstractBackgroundWidget {
                         implicitWidth: 26; implicitHeight: 26; radius: 13
                         color: "transparent"
                         border.width: 1
-                        border.color: Appearance.colors.colPrimary
+                        border.color: root.cardAccentColor
                         MaterialSymbol {
                             anchors.centerIn: parent
                             text: "chevron_right"
                             iconSize: Appearance.font.pixelSize.normal
-                            color: Appearance.colors.colOnPrimaryContainer
+                            color: root.cardFgColor
                         }
                         MouseArea {
                             anchors.fill: parent
@@ -371,7 +375,7 @@ AbstractBackgroundWidget {
                             horizontalAlignment: Text.AlignHCenter
                             font.pixelSize: Appearance.font.pixelSize.smaller
                             font.weight: Font.Bold
-                            color: Appearance.colors.colOnPrimaryContainer
+                            color: root.cardFgColor
                             opacity: 0.6
                             text: modelData
                         }
@@ -423,8 +427,8 @@ AbstractBackgroundWidget {
 
                     MaterialShapeWrappedMaterialSymbol {
                         shape: MaterialShape.Shape.Gem
-                        color: Appearance.colors.colPrimary
-                        colSymbol: Appearance.colors.colOnPrimary
+                        color: root.cardAccentColor
+                        colSymbol: root.cardOnAccentColor
                         text: "calendar_month"
                         iconSize: 22
                         fill: 1
@@ -439,14 +443,14 @@ AbstractBackgroundWidget {
                         text: root.today.toLocaleDateString(Qt.locale(), "MMMM").toUpperCase()
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.Bold
-                        color: Appearance.colors.colOnPrimaryContainer
+                        color: root.cardFgColor
                         opacity: 0.6
                     }
                     StyledText {
                         text: root.today.toLocaleDateString(Qt.locale(), "dddd")
                         font.pixelSize: Appearance.font.pixelSize.larger
                         font.weight: Font.DemiBold
-                        color: Appearance.colors.colOnPrimaryContainer
+                        color: root.cardFgColor
                         opacity: 0.8
                     }
 
@@ -454,7 +458,7 @@ AbstractBackgroundWidget {
                         text: root.today.getDate()
                         font.pixelSize: 66
                         font.weight: Font.Bold
-                        color: Appearance.colors.colPrimary
+                        color: root.cardAccentColor
                     }
                 }
 
@@ -479,7 +483,7 @@ AbstractBackgroundWidget {
                                     horizontalAlignment: Text.AlignHCenter
                                     font.pixelSize: Appearance.font.pixelSize.smaller
                                     font.weight: Font.Bold
-                                    color: Appearance.colors.colOnPrimaryContainer
+                                    color: root.cardFgColor
                                     opacity: 0.6
                                     text: modelData
                                 }

@@ -58,6 +58,10 @@ AbstractBackgroundWidget {
     readonly property real snapWidth3: root.singleWidth * 3 + root.cardSpacing * 2
 
     property string sizeMode: root.configEntry.sizeMode ?? "1x3"
+    property color cardBgColor: Appearance.colors.colSecondaryContainer
+    property color cardAccentColor: Appearance.colors.colSecondary
+    property color cardOnAccentColor: Appearance.colors.colOnSecondary
+    property color cardFgColor: Appearance.colors.colOnSecondaryContainer
 
     property real widgetWidth: {
         switch (root.sizeMode) {
@@ -141,7 +145,7 @@ AbstractBackgroundWidget {
             ? root.doubleCardHeight
             : (root.cardHeight + (root.sizeMode === "1x3" && root.showLyrics ? 264 : 0))
         radius: Appearance.rounding?.verylarge ?? 30
-        color: Appearance.colors.colPrimaryContainer
+        color: root.cardBgColor
         clip: true
 
         Behavior on implicitHeight {

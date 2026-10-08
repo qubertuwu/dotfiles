@@ -60,7 +60,7 @@ Singleton {
 
                 break;
             case ScreenshotAction.Action.Edit:
-                return ["bash", "-c", `${cropToStdout} | ${annotationCommand} && ${cleanup}`]
+                return ["bash", "-c", `${cropToStdout} | ${annotationCommand}; ${cleanup}`]
                 break;
             case ScreenshotAction.Action.Search:
                 return ["bash", "-c", `${cropInPlace} && xdg-open "${root.imageSearchEngineBaseUrl}$(${uploadAndGetUrl(screenshotPath)})" && ${cleanup}`]

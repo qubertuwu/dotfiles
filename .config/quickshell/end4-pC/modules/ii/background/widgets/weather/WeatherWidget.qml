@@ -24,6 +24,10 @@ AbstractBackgroundWidget {
 
     property string sizeMode: root.configEntry.sizeMode ?? "1x3"
     property bool expanded: root.configEntry.expanded ?? false
+    property color cardBgColor: Appearance.colors.colSecondaryContainer
+    property color cardAccentColor: Appearance.colors.colSecondary
+    property color cardOnAccentColor: Appearance.colors.colOnSecondary
+    property color cardFgColor: Appearance.colors.colOnSecondaryContainer
 
     property real widgetWidth: {
         switch (root.sizeMode) {
@@ -60,7 +64,7 @@ AbstractBackgroundWidget {
         implicitWidth: root.widgetWidth
         implicitHeight: root.widgetHeight
         radius: Appearance.rounding?.verylarge ?? 30
-        color: Appearance.colors.colPrimaryContainer
+        color: root.cardBgColor
 
         StyledRectangularShadow {
             target: card
@@ -101,8 +105,8 @@ AbstractBackgroundWidget {
                 MaterialShapeWrappedMaterialSymbol {
                     Layout.alignment: Qt.AlignRight
                     shape: MaterialShape.Shape.Cookie12Sided
-                    color: Appearance.colors.colPrimary
-                    colSymbol: Appearance.colors.colOnPrimary
+                    color: root.cardAccentColor
+                    colSymbol: root.cardOnAccentColor
                     text: Icons.getWeatherIcon(Weather.data.wCode) ?? "cloud"
                     iconSize: 18
                     fill: 1
@@ -117,13 +121,13 @@ AbstractBackgroundWidget {
                     text: Weather.data?.temp ?? "--°"
                     font.pixelSize: Appearance.font.pixelSize.hugeass
                     font.weight: Font.Bold
-                    color: Appearance.colors.colOnPrimaryContainer
+                    color: root.cardFgColor
                 }
                 StyledText {
                     Layout.fillWidth: true
                     text: Weather.data?.city ?? "--"
                     font.pixelSize: Appearance.font.pixelSize.small
-                    color: Appearance.colors.colOnPrimaryContainer
+                    color: root.cardFgColor
                     opacity: 0.6
                     elide: Text.ElideRight
                 }
@@ -141,7 +145,7 @@ AbstractBackgroundWidget {
                     Layout.fillHeight: true
                     Layout.preferredWidth: 120
                     radius: Appearance.rounding.verylarge ?? 30
-                    color: Appearance.colors.colPrimary
+                    color: root.cardAccentColor
 
                     Rectangle {
                         width: parent.radius
@@ -158,14 +162,14 @@ AbstractBackgroundWidget {
                             Layout.alignment: Qt.AlignHCenter
                             iconSize: 46
                             text: Icons.getWeatherIcon(Weather.data.wCode) ?? "cloud"
-                            color: Appearance.colors.colOnPrimary
+                            color: root.cardOnAccentColor
                         }
                         StyledText {
                             Layout.alignment: Qt.AlignHCenter
                             text: Weather.data?.temp ?? "--°"
                             font.pixelSize: Appearance.font.pixelSize.huge
                             font.weight: Font.Bold
-                            color: Appearance.colors.colOnPrimary
+                            color: root.cardOnAccentColor
                             opacity: 0.7
                         }
                     }
@@ -183,14 +187,14 @@ AbstractBackgroundWidget {
                         text: Weather.data?.city ?? "--"
                         font.pixelSize: Appearance.font.pixelSize.normal
                         font.weight: Font.DemiBold
-                        color: Appearance.colors.colOnPrimaryContainer
+                        color: root.cardFgColor
                         elide: Text.ElideRight
                     }
                     StyledText {
                         Layout.fillWidth: true
                         text: Weather.data?.description ?? "--"
                         font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colOnPrimaryContainer
+                        color: root.cardFgColor
                         opacity: 0.6
                         elide: Text.ElideRight
                     }
@@ -204,13 +208,13 @@ AbstractBackgroundWidget {
                         MaterialSymbol {
                             iconSize: Appearance.font.pixelSize.smaller
                             text: "humidity_mid"
-                            color: Appearance.colors.colOnPrimaryContainer
+                            color: root.cardFgColor
                             opacity: 0.55
                         }
                         StyledText {
                             text: Weather.data?.humidity ?? "--"
                             font.pixelSize: Appearance.font.pixelSize.smaller
-                            color: Appearance.colors.colOnPrimaryContainer
+                            color: root.cardFgColor
                             opacity: 0.6
                         }
                         Rectangle {
@@ -223,13 +227,13 @@ AbstractBackgroundWidget {
                         MaterialSymbol {
                             iconSize: Appearance.font.pixelSize.smaller
                             text: "air"
-                            color: Appearance.colors.colOnPrimaryContainer
+                            color: root.cardFgColor
                             opacity: 0.55
                         }
                         StyledText {
                             text: Weather.data?.wind ?? "--"
                             font.pixelSize: Appearance.font.pixelSize.smaller
-                            color: Appearance.colors.colOnPrimaryContainer
+                            color: root.cardFgColor
                             opacity: 0.6
                         }
                     }
@@ -258,7 +262,7 @@ AbstractBackgroundWidget {
                             pixelSize: 40
                             weight: Font.Bold
                         }
-                        color: Appearance.colors.colPrimary
+                        color: root.cardAccentColor
                     }
 
                     ColumnLayout {
@@ -269,14 +273,14 @@ AbstractBackgroundWidget {
                             text: Weather.data?.description ?? ""
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.DemiBold
-                            color: Appearance.colors.colOnPrimaryContainer
+                            color: root.cardFgColor
                             elide: Text.ElideRight
                         }
                         StyledText {
                             text: Weather.data?.city ?? "--"
                             font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.colors.colOnPrimaryContainer
-                            opacity: 0.6
+                            color: root.cardFgColor
+                            opacity: 0.7
                             elide: Text.ElideRight
                         }
                     }
@@ -287,8 +291,8 @@ AbstractBackgroundWidget {
                         Layout.topMargin: -5
                         Layout.alignment: Qt.AlignVCenter
                         shape: MaterialShape.Shape.Cookie12Sided
-                        color: Appearance.colors.colPrimary
-                        colSymbol: Appearance.colors.colOnPrimary
+                        color: root.cardAccentColor
+                        colSymbol: root.cardOnAccentColor
                         text: Icons.getWeatherIcon(Weather.data.wCode) ?? "cloud"
                         iconSize: 24
                         fill: 1
@@ -310,14 +314,14 @@ AbstractBackgroundWidget {
                         MaterialSymbol {
                             iconSize: Appearance.font.pixelSize.smaller
                             text: "humidity_mid"
-                            color: Appearance.colors.colOnPrimaryContainer
-                            opacity: 0.6
+                            color: root.cardFgColor
+                            opacity: 0.7
                         }
                         StyledText {
                             text: Weather.data?.humidity ?? "--"
                             font.pixelSize: Appearance.font.pixelSize.smaller
-                            color: Appearance.colors.colOnPrimaryContainer
-                            opacity: 0.6
+                            color: root.cardFgColor
+                            opacity: 0.7
                         }
                     }
 
@@ -326,14 +330,14 @@ AbstractBackgroundWidget {
                         MaterialSymbol {
                             iconSize: Appearance.font.pixelSize.smaller
                             text: "rainy"
-                            color: Appearance.colors.colOnPrimaryContainer
-                            opacity: 0.6
+                            color: root.cardFgColor
+                            opacity: 0.7
                         }
                         StyledText {
                             text: Weather.data?.cr ?? "--"
                             font.pixelSize: Appearance.font.pixelSize.smaller
-                            color: Appearance.colors.colOnPrimaryContainer
-                            opacity: 0.6
+                            color: root.cardFgColor
+                            opacity: 0.7
                         }
                     }
 
@@ -342,14 +346,14 @@ AbstractBackgroundWidget {
                         MaterialSymbol {
                             iconSize: Appearance.font.pixelSize.smaller
                             text: "air"
-                            color: Appearance.colors.colOnPrimaryContainer
-                            opacity: 0.6
+                            color: root.cardFgColor
+                            opacity: 0.7
                         }
                         StyledText {
                             text: Weather.data?.wind ?? "--"
                             font.pixelSize: Appearance.font.pixelSize.smaller
-                            color: Appearance.colors.colOnPrimaryContainer
-                            opacity: 0.6
+                            color: root.cardFgColor
+                            opacity: 0.7
                         }
                     }
 
@@ -358,14 +362,14 @@ AbstractBackgroundWidget {
                         MaterialSymbol {
                             iconSize: Appearance.font.pixelSize.smaller
                             text: "visibility"
-                            color: Appearance.colors.colOnPrimaryContainer
-                            opacity: 0.6
+                            color: root.cardFgColor
+                            opacity: 0.7
                         }
                         StyledText {
                             text: Weather.data?.visib ?? "--"
                             font.pixelSize: Appearance.font.pixelSize.smaller
-                            color: Appearance.colors.colOnPrimaryContainer
-                            opacity: 0.6
+                            color: root.cardFgColor
+                            opacity: 0.7
                         }
                     }
 
@@ -380,14 +384,14 @@ AbstractBackgroundWidget {
                             MaterialSymbol {
                                 iconSize: Appearance.font.pixelSize.smaller
                                 text: "wb_twilight"
-                                color: Appearance.colors.colOnPrimaryContainer
-                                opacity: 0.6
+                                color: root.cardFgColor
+                                opacity: 0.7
                             }
                             StyledText {
                                 text: Weather.data?.sunrise ?? "--"
                                 font.pixelSize: Appearance.font.pixelSize.smaller
-                                color: Appearance.colors.colOnPrimaryContainer
-                                opacity: 0.6
+                                color: root.cardFgColor
+                                opacity: 0.7
                             }
                         }
 
@@ -396,14 +400,14 @@ AbstractBackgroundWidget {
                             MaterialSymbol {
                                 iconSize: Appearance.font.pixelSize.smaller
                                 text: "nights_stay"
-                                color: Appearance.colors.colOnPrimaryContainer
-                                opacity: 0.6
+                                color: root.cardFgColor
+                                opacity: 0.7
                             }
                             StyledText {
                                 text: Weather.data?.sunset ?? "--"
                                 font.pixelSize: Appearance.font.pixelSize.smaller
-                                color: Appearance.colors.colOnPrimaryContainer
-                                opacity: 0.6
+                                color: root.cardFgColor
+                                opacity: 0.7
                             }
                         }
                     }
@@ -436,7 +440,7 @@ AbstractBackgroundWidget {
                                 pixelSize: 42
                                 weight: Font.Bold
                             }
-                            color: Appearance.colors.colPrimary
+                            color: root.cardAccentColor
                         }
 
 
@@ -447,14 +451,14 @@ AbstractBackgroundWidget {
                             MaterialSymbol {
                                 iconSize: Appearance.font.pixelSize.smaller
                                 text: "location_on"
-                                color: Appearance.colors.colPrimary
+                                color: root.cardAccentColor
                                 opacity: 0.7
                             }
                             StyledText {
                                 text: Weather.data?.city ?? "--"
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 font.weight: Font.Medium
-                                color: Appearance.colors.colOnPrimaryContainer
+                                color: root.cardFgColor
                                 opacity: 0.7
                                 elide: Text.ElideRight
                             }
@@ -470,15 +474,15 @@ AbstractBackgroundWidget {
                             text: Weather.data?.description ?? ""
                             font.pixelSize: Appearance.font.pixelSize.normal
                             font.weight: Font.DemiBold
-                            color: Appearance.colors.colOnPrimaryContainer
+                            color: root.cardFgColor
                             elide: Text.ElideRight
                         }
                         
                         StyledText {
                             text: "Feels like " + (Weather.data?.tempFeelsLike ?? "--")
                             font.pixelSize: Appearance.font.pixelSize.smaller
-                            color: Appearance.colors.colOnPrimaryContainer
-                            opacity: 0.55
+                            color: root.cardFgColor
+                            opacity: 0.6
                         }
                     }
 
@@ -488,8 +492,8 @@ AbstractBackgroundWidget {
                         Layout.alignment: Qt.AlignVCenter
                         Layout.topMargin: -10
                         shape: MaterialShape.Shape.Cookie12Sided
-                        color: Appearance.colors.colPrimary
-                        colSymbol: Appearance.colors.colOnPrimary
+                        color: root.cardAccentColor
+                        colSymbol: root.cardOnAccentColor
                         text: Icons.getWeatherIcon(Weather.data.wCode) ?? "cloud"
                         iconSize: 26
                         fill: 1
@@ -521,7 +525,7 @@ AbstractBackgroundWidget {
                             MaterialSymbol {
                                 iconSize: 20
                                 text: "humidity_mid"
-                                color: Appearance.colors.colPrimary
+                                color: root.cardAccentColor
                             }
 
                             ColumnLayout {
@@ -530,14 +534,14 @@ AbstractBackgroundWidget {
                                 StyledText {
                                     text: "Humidity"
                                     font.pixelSize: Appearance.font.pixelSize.smaller
-                                    color: Appearance.colors.colOnSurfaceVariant ?? Appearance.colors.colOnPrimaryContainer
-                                    opacity: 0.6
+                                    color: Appearance.colors.colOnSurfaceVariant ?? root.cardFgColor
+                                    opacity: 0.7
                                 }
                                 StyledText {
                                     text: Weather.data?.humidity ?? "--"
                                     font.pixelSize: Appearance.font.pixelSize.small
                                     font.weight: Font.Bold
-                                    color: Appearance.colors.colOnSurfaceVariant ?? Appearance.colors.colOnPrimaryContainer
+                                    color: Appearance.colors.colOnSurfaceVariant ?? root.cardFgColor
                                 }
                             }
                         }
@@ -557,7 +561,7 @@ AbstractBackgroundWidget {
                             MaterialSymbol {
                                 iconSize: 20
                                 text: "air"
-                                color: Appearance.colors.colPrimary
+                                color: root.cardAccentColor
                             }
 
                             ColumnLayout {
@@ -566,14 +570,14 @@ AbstractBackgroundWidget {
                                 StyledText {
                                     text: "Wind"
                                     font.pixelSize: Appearance.font.pixelSize.smaller
-                                    color: Appearance.colors.colOnSurfaceVariant ?? Appearance.colors.colOnPrimaryContainer
-                                    opacity: 0.6
+                                    color: Appearance.colors.colOnSurfaceVariant ?? root.cardFgColor
+                                    opacity: 0.7
                                 }
                                 StyledText {
                                     text: Weather.data?.wind ?? "--"
                                     font.pixelSize: Appearance.font.pixelSize.small
                                     font.weight: Font.Bold
-                                    color: Appearance.colors.colOnSurfaceVariant ?? Appearance.colors.colOnPrimaryContainer
+                                    color: Appearance.colors.colOnSurfaceVariant ?? root.cardFgColor
                                 }
                             }
                         }
@@ -593,7 +597,7 @@ AbstractBackgroundWidget {
                             MaterialSymbol {
                                 iconSize: 20
                                 text: "rainy"
-                                color: Appearance.colors.colPrimary
+                                color: root.cardAccentColor
                             }
 
                             ColumnLayout {
@@ -602,14 +606,14 @@ AbstractBackgroundWidget {
                                 StyledText {
                                     text: "Rain Chance"
                                     font.pixelSize: Appearance.font.pixelSize.smaller
-                                    color: Appearance.colors.colOnSurfaceVariant ?? Appearance.colors.colOnPrimaryContainer
-                                    opacity: 0.6
+                                    color: Appearance.colors.colOnSurfaceVariant ?? root.cardFgColor
+                                    opacity: 0.7
                                 }
                                 StyledText {
                                     text: Weather.data?.cr ?? "--"
                                     font.pixelSize: Appearance.font.pixelSize.small
                                     font.weight: Font.Bold
-                                    color: Appearance.colors.colOnSurfaceVariant ?? Appearance.colors.colOnPrimaryContainer
+                                    color: Appearance.colors.colOnSurfaceVariant ?? root.cardFgColor
                                 }
                             }
                         }
@@ -629,7 +633,7 @@ AbstractBackgroundWidget {
                             MaterialSymbol {
                                 iconSize: 20
                                 text: "visibility"
-                                color: Appearance.colors.colPrimary
+                                color: root.cardAccentColor
                             }
 
                             ColumnLayout {
@@ -638,14 +642,14 @@ AbstractBackgroundWidget {
                                 StyledText {
                                     text: "Visibility"
                                     font.pixelSize: Appearance.font.pixelSize.smaller
-                                    color: Appearance.colors.colOnSurfaceVariant ?? Appearance.colors.colOnPrimaryContainer
-                                    opacity: 0.6
+                                    color: Appearance.colors.colOnSurfaceVariant ?? root.cardFgColor
+                                    opacity: 0.7
                                 }
                                 StyledText {
                                     text: Weather.data?.visib ?? "--"
                                     font.pixelSize: Appearance.font.pixelSize.small
                                     font.weight: Font.Bold
-                                    color: Appearance.colors.colOnSurfaceVariant ?? Appearance.colors.colOnPrimaryContainer
+                                    color: Appearance.colors.colOnSurfaceVariant ?? root.cardFgColor
                                 }
                             }
                         }
@@ -665,7 +669,7 @@ AbstractBackgroundWidget {
                             MaterialSymbol {
                                 iconSize: 20
                                 text: "wb_twilight"
-                                color: Appearance.colors.colPrimary
+                                color: root.cardAccentColor
                             }
 
                             ColumnLayout {
@@ -674,14 +678,14 @@ AbstractBackgroundWidget {
                                 StyledText {
                                     text: "Sunrise"
                                     font.pixelSize: Appearance.font.pixelSize.smaller
-                                    color: Appearance.colors.colOnSurfaceVariant ?? Appearance.colors.colOnPrimaryContainer
-                                    opacity: 0.6
+                                    color: Appearance.colors.colOnSurfaceVariant ?? root.cardFgColor
+                                    opacity: 0.7
                                 }
                                 StyledText {
                                     text: Weather.data?.sunrise ?? "--"
                                     font.pixelSize: Appearance.font.pixelSize.small
                                     font.weight: Font.Bold
-                                    color: Appearance.colors.colOnSurfaceVariant ?? Appearance.colors.colOnPrimaryContainer
+                                    color: Appearance.colors.colOnSurfaceVariant ?? root.cardFgColor
                                 }
                             }
                         }
@@ -701,7 +705,7 @@ AbstractBackgroundWidget {
                             MaterialSymbol {
                                 iconSize: 20
                                 text: "nights_stay"
-                                color: Appearance.colors.colPrimary
+                                color: root.cardAccentColor
                             }
 
                             ColumnLayout {
@@ -710,14 +714,14 @@ AbstractBackgroundWidget {
                                 StyledText {
                                     text: "Sunset"
                                     font.pixelSize: Appearance.font.pixelSize.smaller
-                                    color: Appearance.colors.colOnSurfaceVariant ?? Appearance.colors.colOnPrimaryContainer
-                                    opacity: 0.6
+                                    color: Appearance.colors.colOnSurfaceVariant ?? root.cardFgColor
+                                    opacity: 0.7
                                 }
                                 StyledText {
                                     text: Weather.data?.sunset ?? "--"
                                     font.pixelSize: Appearance.font.pixelSize.small
                                     font.weight: Font.Bold
-                                    color: Appearance.colors.colOnSurfaceVariant ?? Appearance.colors.colOnPrimaryContainer
+                                    color: Appearance.colors.colOnSurfaceVariant ?? root.cardFgColor
                                 }
                             }
                         }
