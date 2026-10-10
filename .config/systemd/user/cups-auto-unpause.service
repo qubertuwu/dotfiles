@@ -1,0 +1,11 @@
+[Unit]
+Description=Auto-unpause CUPS printer queue for Epson L222
+After=cups.socket
+
+[Service]
+ExecStart=%h/.local/bin/cups-auto-unpause.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

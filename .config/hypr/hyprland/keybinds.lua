@@ -231,7 +231,7 @@ create_bind(
 create_bind({ "SUPER + T", "SUPER + Cyrillic_ie" }, hl.dsp.exec_cmd("qs -c end4-pC ipc call translator toggle"))
 
 -- Region OCR Translator (Выделение области экрана через slurp)
-create_bind({ "SUPER + SHIFT + T", "SUPER + SHIFT + Cyrillic_ie" }, hl.dsp.exec_cmd("/home/qubert/.config/quickshell/end4-pC/scripts/ocr_translate_region.sh"))
+create_bind({ "SUPER + SHIFT + T", "SUPER + SHIFT + Cyrillic_ie" }, hl.dsp.exec_cmd((os.getenv("HOME") or "/home/qubert") .. "/.config/quickshell/end4-pC/scripts/ocr_translate_region.sh"))
 
 -- Quickshell Settings
 create_bind({ "SUPER + I", "SUPER + Cyrillic_sha", "SUPER + escape" }, hl.dsp.global("quickshell:settingsToggle"))

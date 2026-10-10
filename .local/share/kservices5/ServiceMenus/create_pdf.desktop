@@ -1,0 +1,22 @@
+[Desktop Entry]
+Type=Service
+X-KDE-ServiceTypes=KonqPopupMenu/Plugin
+MimeType=all/allfiles;
+Actions=createSinglePdf;createSeparatePdf;
+X-KDE-Submenu=Преобразовать в PDF
+X-KDE-Submenu[ru]=Преобразовать в PDF
+X-KDE-Submenu[en]=Convert to PDF
+
+[Desktop Action createSinglePdf]
+Name=Объединить выбранное в один PDF...
+Name[ru]=Объединить выбранное в один PDF...
+Name[en]=Combine selected into single PDF...
+Icon=application-pdf
+Exec=dolphin-to-pdf merge %F
+
+[Desktop Action createSeparatePdf]
+Name=Создать отдельный PDF для каждого файла
+Name[ru]=Создать отдельный PDF для каждого файла
+Name[en]=Convert each file to separate PDF
+Icon=application-pdf
+Exec=dolphin-to-pdf separate %F

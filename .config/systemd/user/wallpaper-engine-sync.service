@@ -1,0 +1,12 @@
+[Unit]
+Description=Wallpaper Engine Automatic Sync Service
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.config/quickshell/end4-pC/scripts/watch_wallpaper_engine.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

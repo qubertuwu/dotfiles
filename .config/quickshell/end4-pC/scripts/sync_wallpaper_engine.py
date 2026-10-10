@@ -12,9 +12,9 @@ import io
 import ctypes
 from PIL import Image
 
-WORKSHOP_DIR = "/home/qubert/.local/share/Steam/steamapps/workshop/content/431960"
+WORKSHOP_DIR = os.path.expanduser("~/.local/share/Steam/steamapps/workshop/content/431960")
 WE_DIR = os.path.expanduser("~/Изображения/Wallpaper_Engine")
-EXTRACTED_DIR = "/home/qubert/.local/share/quickshell/extracted_wallpapers"
+EXTRACTED_DIR = os.path.expanduser("~/.local/share/quickshell/extracted_wallpapers")
 CACHE_BASE = os.path.expanduser("~/.cache/thumbnails")
 
 for sz in ["normal", "large", "x-large", "xx-large"]:

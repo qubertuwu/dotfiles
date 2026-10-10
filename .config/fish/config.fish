@@ -46,3 +46,14 @@ if status is-interactive
     set -q XDG_CONFIG_HOME && set -l cConf $XDG_CONFIG_HOME/caelestia || set -l cConf $HOME/.config/caelestia
     source $cConf/user-config.fish 2> /dev/null
 end
+
+
+# Antigravity Unlocker environment
+if test -f $HOME/.config/environment.d/ag-unlocker.conf
+    for line in (cat $HOME/.config/environment.d/ag-unlocker.conf | string match -r "^[A-Za-z0-9_]+=.*")
+        set -l kv (string split -m 1 = $line)
+        if test (count $kv) -eq 2
+            set -gx $kv[1] $kv[2]
+        end
+    end
+end

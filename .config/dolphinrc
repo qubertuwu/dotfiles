@@ -1,0 +1,14 @@
+[General]
+GlobalViewProps=true
+Version=202
+ViewPropsTimestamp=2026,9,27,14,22,00.000
+
+[KFileDialog Settings]
+Places Icons Auto-resize=false
+Places Icons Static Size=22
+
+[MainWindow]
+MenuBar=Disabled
+
+[Settings]
+HiddenFilesShown=true

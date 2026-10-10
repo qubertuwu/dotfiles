@@ -1,0 +1,8 @@
+ms-ceintl.vscode-language-pack-ru
+ms-dotnettools.csdevkit
+ms-dotnettools.csharp
+ms-dotnettools.vscode-dotnet-runtime
+ms-vscode.hexeditor
+ms-vscode.vs-keybindings
+visualstudioexptteam.intellicode-api-usage-examples
+visualstudioexptteam.vscodeintellicode

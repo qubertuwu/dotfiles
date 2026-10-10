@@ -1,0 +1,13 @@
+{
+    "terminal.external.linuxExec": "alacritty",
+    "debug.onTaskErrors": "debugAnyway"
+,
+  "material-code.primaryColor": "#3473B2",
+  "explorer.confirmDelete": false,
+  "editor.formatOnType": true,
+  "dotnet.codeLens.enableReferencesCodeLens": true,
+  "dotnet.inlayHints.enableInlayHintsForParameters": true,
+  "dotnet.inlayHints.enableInlayHintsForTypes": true,
+  "explorer.confirmDragAndDrop": false,
+  "debug.inlineValues": "on"
+}

@@ -26,7 +26,7 @@ if command -v magick >/dev/null 2>&1; then
 fi
 
 # 4. Run Tesseract OCR with both English and Russian models
-export TESSDATA_PREFIX="/home/qubert/.local/share/tessdata"
+export TESSDATA_PREFIX="${HOME}/.local/share/tessdata"
 TEXT=$(tesseract "$TMP_IMG" stdout -l eng+rus --oem 1 2>/dev/null)
 rm -f "$TMP_IMG"
 

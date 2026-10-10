@@ -24,3 +24,13 @@ hl.exec_cmd("amixer -c Headset set Headphone 100% unmute")
 -- end4-pC Quickshell Keybinds are managed in ~/.config/hypr/hyprland/keybinds.lua
 
 
+
+-- Antigravity Unlocker environment variables
+local ag_conf = io.open(os.getenv("HOME") .. "/.config/environment.d/ag-unlocker.conf", "r")
+if ag_conf then
+    for line in ag_conf:lines() do
+        local k, v = line:match("^([%w_]+)=([%S]+)")
+        if k and v then hl.env(k, v) end
+    end
+    ag_conf:close()
+end

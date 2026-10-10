@@ -1,0 +1,12 @@
+[Unit]
+Description=Antigravity Unlocker local proxy
+After=default.target
+
+[Service]
+Environment="XDG_DATA_HOME=/home/qubert/.local/share"
+ExecStart=/home/qubert/.local/share/agunlocker/ag_proxy --proxy
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

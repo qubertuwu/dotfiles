@@ -1,0 +1,209 @@
+#!/usr/bin/env python3
+import sys
+import os
+import shutil
+import subprocess
+import tempfile
+import urllib.parse
+from pathlib import Path
+from PIL import Image, ImageOps
+
+def notify(summary, body, icon="application-pdf", urgency="normal"):
+    try:
+        subprocess.run(["notify-send", "-a", "Dolphin PDF", "-i", icon, "-u", urgency, summary, body], check=False)
+    except Exception:
+        pass
+
+def show_error(msg):
+    try:
+        subprocess.run(["kdialog", "--error", msg], check=False)
+    except Exception:
+        notify("Ошибка PDF", msg, urgency="critical")
+
+def parse_files(args):
+    files = []
+    for arg in args:
+        if arg.startswith("file://"):
+            parsed = urllib.parse.unquote(urllib.parse.urlparse(arg).path)
+            path = Path(parsed)
+        else:
+            path = Path(arg).resolve()
+        if path.is_file():
+            files.append(path)
+    return files
+
+def convert_image(src_path, out_pdf_path):
+    with Image.open(src_path) as im:
+        images = []
+        n_frames = getattr(im, "n_frames", 1)
+        for i in range(n_frames):
+            try:
+                im.seek(i)
+                frame = ImageOps.exif_transpose(im)
+                if frame.mode in ("RGBA", "LA", "P"):
+                    frame = frame.convert("RGBA")
+                    bg = Image.new("RGB", frame.size, (255, 255, 255))
+                    bg.paste(frame, mask=frame.split()[3])
+                    frame = bg
+                elif frame.mode != "RGB":
+                    frame = frame.convert("RGB")
+                images.append(frame.copy())
+            except Exception:
+                break
+        if not images:
+            raise ValueError("No valid image frames found")
+        images[0].save(out_pdf_path, "PDF", save_all=True, append_images=images[1:], resolution=100.0)
+
+def convert_document(src_path, out_dir):
+    res = subprocess.run(
+        ["libreoffice", "--headless", "--convert-to", "pdf", "--outdir", str(out_dir), str(src_path)],
+        capture_output=True,
+        text=True
+    )
+    if res.returncode != 0:
+        raise RuntimeError(f"LibreOffice failed: {res.stderr}")
+    expected_out = out_dir / (src_path.stem + ".pdf")
+    if not expected_out.is_file():
+        pdfs = list(out_dir.glob("*.pdf"))
+        if pdfs:
+            return pdfs[0]
+        raise RuntimeError("LibreOffice did not produce a PDF file.")
+    return expected_out
+
+def convert_single_to_temp_pdf(src_path, temp_dir):
+    if src_path.suffix.lower() == ".pdf":
+        target = temp_dir / f"{src_path.stem}_{os.urandom(4).hex()}.pdf"
+        shutil.copy2(src_path, target)
+        return target
+
+    target = temp_dir / f"{src_path.stem}_{os.urandom(4).hex()}.pdf"
+
+    # Try Image conversion
+    try:
+        convert_image(src_path, target)
+        return target
+    except Exception:
+        pass
+
+    # Try LibreOffice conversion
+    sub_temp = temp_dir / f"lo_{os.urandom(4).hex()}"
+    sub_temp.mkdir(parents=True, exist_ok=True)
+    try:
+        lo_pdf = convert_document(src_path, sub_temp)
+        shutil.move(lo_pdf, target)
+        return target
+    except Exception:
+        raise RuntimeError(f"Не удалось преобразовать '{src_path.name}': неподдерживаемый формат.")
+
+def merge_pdfs(pdf_list, out_pdf_path):
+    if len(pdf_list) == 1:
+        shutil.copy2(pdf_list[0], out_pdf_path)
+        return
+    cmd = [
+        "gs",
+        "-dBATCH",
+        "-dNOPAUSE",
+        "-q",
+        "-sDEVICE=pdfwrite",
+        "-dAutoRotatePages=/None",
+        f"-sOutputFile={out_pdf_path}"
+    ] + [str(p) for p in pdf_list]
+    res = subprocess.run(cmd, capture_output=True, text=True)
+    if res.returncode != 0:
+        raise RuntimeError(f"Ghostscript error: {res.stderr}")
+
+def main():
+    if len(sys.argv) < 3:
+        notify("Создание PDF", "Использование: dolphin-to-pdf <merge|separate> <файлы...>")
+        return
+
+    mode = sys.argv[1]
+    raw_files = sys.argv[2:]
+    files = parse_files(raw_files)
+
+    if not files:
+        notify("Создание PDF", "Не найдено файлов для обработки.")
+        return
+
+    if mode == "merge":
+        parent_dir = files[0].parent
+        if len(files) == 1:
+            default_out = parent_dir / f"{files[0].stem}.pdf"
+        else:
+            default_out = parent_dir / f"{files[0].stem}_объединенный.pdf"
+
+        # Ask user for filename via kdialog
+        try:
+            proc = subprocess.run(
+                ["kdialog", "--getsavefilename", str(default_out), "application/pdf (*.pdf)\n*|Все файлы (*)", "--title", "Сохранить PDF как"],
+                capture_output=True,
+                text=True
+            )
+            if proc.returncode != 0 or not proc.stdout.strip():
+                return
+            chosen_path = Path(proc.stdout.strip())
+        except Exception:
+            chosen_path = default_out
+
+        if chosen_path.suffix.lower() != ".pdf":
+            chosen_path = chosen_path.with_suffix(".pdf")
+
+        notify("Создание PDF", f"Обработка {len(files)} файл(ов)...")
+
+        with tempfile.TemporaryDirectory() as td:
+            temp_dir = Path(td)
+            temp_pdfs = []
+            errors = []
+            for f in files:
+                try:
+                    pdf_f = convert_single_to_temp_pdf(f, temp_dir)
+                    temp_pdfs.append(pdf_f)
+                except Exception as e:
+                    errors.append(str(e))
+
+            if not temp_pdfs:
+                show_error("Не удалось преобразовать ни один файл:\n" + "\n".join(errors))
+                return
+
+            try:
+                merge_pdfs(temp_pdfs, chosen_path)
+            except Exception as e:
+                show_error(f"Ошибка при объединении PDF:\n{e}")
+                return
+
+            if errors:
+                notify("PDF создан с предупреждениями", f"Сохранён: {chosen_path.name}\nПропущено ошибок: {len(errors)}")
+            else:
+                notify("PDF успешно создан", f"Файл сохранён:\n{chosen_path.name}")
+
+    elif mode == "separate":
+        notify("Создание PDF", f"Конвертация {len(files)} файл(ов) в отдельные PDF...")
+        success_count = 0
+        errors = []
+
+        with tempfile.TemporaryDirectory() as td:
+            temp_dir = Path(td)
+            for f in files:
+                if f.suffix.lower() == ".pdf":
+                    continue
+                out_target = f.parent / f"{f.stem}.pdf"
+                if out_target.exists():
+                    idx = 1
+                    while (f.parent / f"{f.stem}_{idx}.pdf").exists():
+                        idx += 1
+                    out_target = f.parent / f"{f.stem}_{idx}.pdf"
+
+                try:
+                    temp_pdf = convert_single_to_temp_pdf(f, temp_dir)
+                    shutil.move(temp_pdf, out_target)
+                    success_count += 1
+                except Exception as e:
+                    errors.append(str(e))
+
+        if errors:
+            notify("Конвертация завершена с предупреждениями", f"Успешно: {success_count}, Ошибок: {len(errors)}", urgency="critical")
+        else:
+            notify("PDF успешно созданы", f"Создано отдельных PDF: {success_count}")
+
+if __name__ == "__main__":
+    main()

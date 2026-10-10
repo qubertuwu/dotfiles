@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Fifine Headset Volume Fix
+Exec=amixer -c Headset set Headphone 100% unmute
+Hidden=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true

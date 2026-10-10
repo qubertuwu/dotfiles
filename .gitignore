@@ -6,3 +6,7 @@ __pycache__/
 .cache/
 keyring.json
 fish_variables
+*.old
+*~
+*.swp
+*.wants/

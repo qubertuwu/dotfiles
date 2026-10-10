@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Горячие клавиши Hyprland — Памятка пользователя</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 10mm 12mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #1a1a1a;
+            background: #ffffff;
+            line-height: 1.35;
+            font-size: 11pt;
+            padding: 15px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 16pt;
+            font-weight: 700;
+            color: #1e3a8a;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 9.5pt;
+            color: #4b5563;
+        }
+
+        .no-print {
+            margin-bottom: 15px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .print-btn {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 11pt;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .print-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .card {
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            overflow: hidden;
+            break-inside: avoid;
+        }
+
+        .card-header {
+            background: #f3f4f6;
+            padding: 5px 10px;
+            font-weight: 700;
+            font-size: 10.5pt;
+            color: #111827;
+            border-bottom: 1px solid #d1d5db;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-header .icon {
+            font-size: 11pt;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        td {
+            padding: 4.5px 8px;
+            font-size: 9.5pt;
+            vertical-align: middle;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        td.keys {
+            white-space: nowrap;
+            width: 46%;
+        }
+
+        td.desc {
+            color: #374151;
+        }
+
+        kbd {
+            display: inline-block;
+            background: #ffffff;
+            border: 1px solid #9ca3af;
+            border-bottom: 2px solid #6b7280;
+            border-radius: 4px;
+            padding: 1.5px 5px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 8.5pt;
+            font-weight: 600;
+            color: #111827;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+        }
+
+        .tag-ru {
+            font-size: 7.5pt;
+            color: #059669;
+            font-weight: 600;
+            background: #ecfdf5;
+            padding: 1px 4px;
+            border-radius: 3px;
+            margin-left: 2px;
+        }
+
+        footer {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 8.5pt;
+            color: #6b7280;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+            }
+            .card {
+                border-color: #9ca3af;
+            }
+            .card-header {
+                background: #e5e7eb !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            kbd {
+                border-color: #6b7280;
+                background: #ffffff !important;
+            }
+            tr:nth-child(even) {
+                background: #f3f4f6 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <div>
+            <strong>Готово к печати на Epson L222!</strong>
+            <div style="font-size: 9pt; color: #4b5563; margin-top: 2px;">
+                Нажмите кнопку справа или сочетание <kbd>Ctrl</kbd> + <kbd>P</kbd> в браузере.
+            </div>
+        </div>
+        <button class="print-btn" onclick="window.print()">🖨️ Печать памятки</button>
+    </div>
+
+    <header>
+        <div>
+            <h1>Hyprland & Quickshell — Горячие клавиши</h1>
+            <div class="subtitle">Система CachyOS / Arch Linux | Двойная поддержка раскладок (EN / RU)</div>
+        </div>
+        <div style="text-align: right; font-size: 9pt; color: #4b5563;">
+            Клавиша <strong>Super</strong> = <strong>Win (⊞)</strong>
+        </div>
+    </header>
+
+    <div class="grid">
+        <!-- БЛОК 1: ОСНОВНЫЕ И ПРИЛОЖЕНИЯ -->
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">🚀</span> Основные и Приложения
+            </div>
+            <table>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>D</kbd> <span class="tag-ru">В</span></td>
+                    <td class="desc"><strong>Поиск и меню программ</strong> (Launcher)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> (быстро отпустить)</td>
+                    <td class="desc">Открыть меню приложений / обзор</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>Q</kbd> <span class="tag-ru">Й</span></td>
+                    <td class="desc">Терминал (Foot)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>F</kbd> <span class="tag-ru">А</span></td>
+                    <td class="desc">Браузер (Firefox)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>E</kbd> <span class="tag-ru">У</span></td>
+                    <td class="desc">Проводник файлов</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>W</kbd> <span class="tag-ru">Ц</span></td>
+                    <td class="desc"><strong>Выбор обоев (Wallpaper Engine) и тем</strong></td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>M</kbd> <span class="tag-ru">Ь</span></td>
+                    <td class="desc"><strong>Музыкальный плеер</strong> (управление треками)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>I</kbd> или <kbd>Super</kbd> + <kbd>Esc</kbd></td>
+                    <td class="desc"><strong>Панель настроек и пресетов тем</strong></td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>T</kbd> <span class="tag-ru">Е</span></td>
+                    <td class="desc"><strong>Переводчик</strong> (Google Translate на панели)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>Alt</kbd> + <kbd>C</kbd></td>
+                    <td class="desc">Редактор кода (VSCode)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd></td>
+                    <td class="desc">Настройки звука и громкости</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- БЛОК 2: УПРАВЛЕНИЕ ОКНАМИ -->
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">🪟</span> Управление окнами
+            </div>
+            <table>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>C</kbd> или <kbd>Alt</kbd> + <kbd>F4</kbd></td>
+                    <td class="desc"><strong>Закрыть окно</strong> (активное)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>V</kbd> <span class="tag-ru">М</span></td>
+                    <td class="desc">Полноэкранный режим (Fullscreen)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>Alt</kbd> + <kbd>Пробел</kbd></td>
+                    <td class="desc">Плавающее окно / тайлинг</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>Alt</kbd> + <kbd>F</kbd></td>
+                    <td class="desc">Развернуть окно с рамками</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>P</kbd></td>
+                    <td class="desc">Закрепить поверх всех окон (Pin)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>ЛКМ</kbd> (зажать)</td>
+                    <td class="desc">Перетаскивание окна мышью</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>ПКМ</kbd> (зажать)</td>
+                    <td class="desc">Изменение размера окна мышью</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd></td>
+                    <td class="desc">Переключить фокус на соседнее окно</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>Стрелки</kbd></td>
+                    <td class="desc">Переместить окно в сторону стрелки</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Alt</kbd> + <kbd>Tab</kbd></td>
+                    <td class="desc">Переключение между окнами</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- БЛОК 3: СКРИНШОТЫ И МЕДИА -->
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">📸</span> Скриншоты и Запись экрана
+            </div>
+            <table>
+                <tr>
+                    <td class="keys"><kbd>Print Screen</kbd></td>
+                    <td class="desc"><strong>Снимок всего экрана</strong> (в папку Изображения)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> <span class="tag-ru">Ы</span></td>
+                    <td class="desc"><strong>Снимок выделенной области</strong> (с заморозкой)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd></td>
+                    <td class="desc">Быстрый снимок выбранного региона</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td>
+                    <td class="desc"><strong>Пипетка цвета</strong> (HEX цвет в буфер обмена)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>R</kbd></td>
+                    <td class="desc">Запись экрана (видео)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>Alt</kbd> + <kbd>R</kbd></td>
+                    <td class="desc">Запись экрана с аудио</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>R</kbd></td>
+                    <td class="desc">Запись области экрана</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- БЛОК 4: БУФЕР ОБМЕНА И ПАНЕЛИ -->
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">📋</span> Буфер, Панели и Система
+            </div>
+            <table>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>K</kbd> <span class="tag-ru">Л</span></td>
+                    <td class="desc"><strong>История буфера обмена</strong> (Clipboard)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>.</kbd> (точка)</td>
+                    <td class="desc">Выбор смайликов и эмодзи (Emoji)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>N</kbd> <span class="tag-ru">Т</span></td>
+                    <td class="desc">Боковая панель (Уведомления и виджеты)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>C</kbd></td>
+                    <td class="desc">Очистить все уведомления</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Del</kbd></td>
+                    <td class="desc"><strong>Меню выключения / перезагрузки</strong></td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>L</kbd> <span class="tag-ru">Д</span></td>
+                    <td class="desc">Заблокировать экран (Lock screen)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd></td>
+                    <td class="desc">Переход в спящий режим (Sleep)</td>
+                </tr>
+                <tr>
+                    <td class="keys"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Esc</kbd></td>
+                    <td class="desc">Диспетчер задач / Монитор системы</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- БЛОК 5: РАБОЧИЕ СТОЛЫ -->
+        <div class="card" style="grid-column: span 2;">
+            <div class="card-header">
+                <span class="icon">🖥️</span> Рабочие столы (Workspaces)
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                <table>
+                    <tr>
+                        <td class="keys"><kbd>Super</kbd> + <kbd>1</kbd> ... <kbd>0</kbd></td>
+                        <td class="desc">Перейти на рабочий стол 1–10</td>
+                    </tr>
+                    <tr>
+                        <td class="keys"><kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>1</kbd> ... <kbd>0</kbd></td>
+                        <td class="desc">Перенести окно на рабочий стол 1–10</td>
+                    </tr>
+                    <tr>
+                        <td class="keys"><kbd>Super</kbd> + <kbd>Колесо мыши</kbd></td>
+                        <td class="desc">Переключение на след. / пред. стол</td>
+                    </tr>
+                </table>
+                <table>
+                    <tr>
+                        <td class="keys"><kbd>Super</kbd> + <kbd>S</kbd> <span class="tag-ru">Ы</span></td>
+                        <td class="desc">Специальный скрытый стол (Scratchpad)</td>
+                    </tr>
+                    <tr>
+                        <td class="keys"><kbd>Super</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd></td>
+                        <td class="desc">Спрятать окно в специальный стол</td>
+                    </tr>
+                    <tr>
+                        <td class="keys"><kbd>Ctrl</kbd> + <kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>↓</kbd></td>
+                        <td class="desc">Вернуть окно со специального стола</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div>Подсказка: Зелёная метка <span class="tag-ru">Буква</span> обозначает клавишу в русской раскладке ЙЦУКЕН.</div>
+        <div>Epson L222 Driver: <strong>epson-inkjet-printer-201401w</strong> (CUPS)</div>
+    </footer>
+
+</body>
+</html>

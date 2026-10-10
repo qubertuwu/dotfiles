@@ -31,7 +31,7 @@
         },
         "palette": {
             "accentColor": "",
-            "type": "scheme-tonal-spot"
+            "type": "scheme-content"
         },
         "transparency": {
             "automatic": true,
@@ -105,7 +105,7 @@
                 "sizeMode": "2x2",
                 "x": 2176,
                 "y": 544,
-                "z": 21
+                "z": 26
             },
             "clock": {
                 "color": "",
@@ -486,7 +486,7 @@
             "size": 110
         },
         "centerClock": false,
-        "launchOnStartup": false,
+        "launchOnStartup": true,
         "materialShapeChars": true,
         "security": {
             "requirePasswordToPower": false,
@@ -496,7 +496,7 @@
         "showMedia": true,
         "showToolbars": true,
         "showWidgets": false,
-        "useHyprlock": false
+        "useHyprlock": true
     },
     "media": {
         "filterDuplicatePlayers": true

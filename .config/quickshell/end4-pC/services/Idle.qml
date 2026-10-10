@@ -36,13 +36,7 @@ Singleton {
         enabled: !root.inhibit
         respectInhibitors: true
         onIsIdleChanged: {
-            if (isIdle) {
-                Quickshell.execDetached(["qs", "-c", "end4-pC", "ipc", "call", "lock", "activate"]);
-                Hyprland.dispatch("hl.dsp.dpms({ action = 'disable' })");
-            } else {
-                Hyprland.dispatch("hl.dsp.dpms({ action = 'enable' })");
-                Quickshell.execDetached(["qs", "-c", "end4-pC", "ipc", "call", "lock", "focus"]);
-            }
+            // Disabled idle sleep and lockscreen activation per user request
         }
     }
 
