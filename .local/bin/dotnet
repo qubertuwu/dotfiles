@@ -1,0 +1,22 @@
+#!/bin/bash
+# Wrapper for dotnet to automatically add --use-program-main for new console projects
+
+is_new_console=false
+has_main_flag=false
+
+if [ "$1" = "new" ]; then
+    for arg in "$@"; do
+        if [ "$arg" = "console" ]; then
+            is_new_console=true
+        fi
+        if [[ "$arg" == *"--use-program-main"* ]]; then
+            has_main_flag=true
+        fi
+    done
+fi
+
+if [ "$is_new_console" = true ] && [ "$has_main_flag" = false ]; then
+    exec /usr/bin/dotnet "$@" --use-program-main
+else
+    exec /usr/bin/dotnet "$@"
+fi

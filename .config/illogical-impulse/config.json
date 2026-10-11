@@ -252,7 +252,7 @@
                 "z": 0
             }
         },
-        "widgetsLocked": true
+        "widgetsLocked": false
     },
     "bar": {
         "autoHide": {

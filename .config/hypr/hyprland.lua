@@ -52,6 +52,18 @@ end
 
 -- Default monitor conf
 hl.monitor({
+    output   = "eDP-1",
+    mode     = "preferred",
+    position = "auto",
+    scale    = 1,
+})
+hl.monitor({
+    output   = "eDP-4",
+    mode     = "preferred",
+    position = "auto",
+    scale    = 1,
+})
+hl.monitor({
     output   = "DP-1",
     mode     = "2560x1440@165",
     position = "auto",

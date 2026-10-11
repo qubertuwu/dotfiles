@@ -9,9 +9,16 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
+AUTO_YES=false
+for arg in "$@"; do
+    if [[ "$arg" == "-y" || "$arg" == "--yes" || "$arg" == "--non-interactive" ]]; then
+        AUTO_YES=true
+    fi
+done
+
 echo -e "${PURPLE}====================================================================${NC}"
 echo -e "${PURPLE}   🌌 Установка полной конфигурации Qubert (ПК + Ноутбук)           ${NC}"
-echo -e "${PURPLE}   Hyprland • Quickshell • Горячие клавиши • Скрипты • Темы          ${NC}"
+echo -e "${PURPLE}   Hyprland • Quickshell (end4) • Горячие клавиши • Скрипты • Темы   ${NC}"
 echo -e "${PURPLE}====================================================================${NC}"
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
@@ -29,6 +36,20 @@ if [ ! -d "$DOTFILES_DIR/.config" ]; then
     DOTFILES_DIR="$CLONE_DIR"
 fi
 
+# Проверка типа оборудования (ноутбук или ПК)
+IS_LAPTOP=false
+if [ -d /sys/class/power_supply ] && ls /sys/class/power_supply/ 2>/dev/null | grep -qi "BAT"; then
+    IS_LAPTOP=true
+elif [ -d /proc/acpi/button/lid ]; then
+    IS_LAPTOP=true
+fi
+
+if [ "$IS_LAPTOP" = true ]; then
+    echo -e "${CYAN}⚡ Обнаружен Ноутбук (Battery/Lid)! Включаем оптимизации для ноутбука (eDP-1/eDP-4, тачпад, яркость, батарея).${NC}"
+else
+    echo -e "${CYAN}🖥 Обнаружен Стационарный ПК / Workstation (DP-1 / HDMI).${NC}"
+fi
+
 # 1. Определение дистрибутива
 echo -e "\n${BLUE}--> [1/8] Определение операционной системы...${NC}"
 if [ -f /etc/os-release ]; then
@@ -44,9 +65,9 @@ install_packages() {
     if [[ "$OS_ID" == "arch" || "$OS_ID" == "cachyos" || "$OS_LIKE" =~ "arch" ]]; then
         echo -e "${GREEN}Обнаружен Arch / CachyOS Linux!${NC}"
         echo -e "${CYAN}Установка базового набора окружения через pacman...${NC}"
+        
         sudo pacman -S --needed --noconfirm \
             hyprland \
-            quickshell \
             foot \
             alacritty \
             fish \
@@ -70,21 +91,24 @@ install_packages() {
             inotify-tools \
             python-pillow \
             thunar \
-            micro || true
+            micro \
+            pipewire \
+            wireplumber \
+            qt6-base \
+            qt6-declarative \
+            qt6-svg \
+            qt6-wayland \
+            polkit \
+            xdg-desktop-portal-hyprland || true
 
-        # Опционально: полная установка всех пакетов из packages-pacman.txt
-        if [ -f "$DOTFILES_DIR/packages-pacman.txt" ]; then
-            if [ -t 0 ]; then
-                read -p "Хотите установить ВСЕ пакеты системы из packages-pacman.txt? (y/N): " -n 1 -r REPLY_ALL
-                echo
-                if [[ "$REPLY_ALL" =~ ^[Yy]$ ]]; then
-                    echo -e "${YELLOW}Установка всех пакетов через pacman...${NC}"
-                    sudo pacman -S --needed --noconfirm - < "$DOTFILES_DIR/packages-pacman.txt" || true
-                fi
-            fi
+        # Quickshell / Noctalia Shell engine
+        if ! command -v qs >/dev/null 2>&1 && ! command -v quickshell >/dev/null 2>&1; then
+            echo -e "${YELLOW}Установка Quickshell / noctalia-qs...${NC}"
+            sudo pacman -S --needed --noconfirm noctalia-qs 2>/dev/null || \
+            sudo pacman -S --needed --noconfirm quickshell 2>/dev/null || true
         fi
 
-        # Установка AUR пакетов, если доступен yay или paru
+        # Поиск AUR helper
         AUR_HELPER=""
         if command -v paru >/dev/null 2>&1; then
             AUR_HELPER="paru"
@@ -92,13 +116,44 @@ install_packages() {
             AUR_HELPER="yay"
         fi
 
+        # Если Quickshell еще не установлен, ставим через AUR
+        if ! command -v qs >/dev/null 2>&1 && ! command -v quickshell >/dev/null 2>&1; then
+            if [ -n "$AUR_HELPER" ]; then
+                echo -e "${YELLOW}Установка quickshell через $AUR_HELPER...${NC}"
+                $AUR_HELPER -S --needed --noconfirm quickshell-git 2>/dev/null || \
+                $AUR_HELPER -S --needed --noconfirm noctalia-qs-git 2>/dev/null || true
+            fi
+        fi
+
+        # Опционально: полная установка всех пакетов из packages-pacman.txt
+        if [ -f "$DOTFILES_DIR/packages-pacman.txt" ]; then
+            REPLY_ALL="n"
+            if [ "$AUTO_YES" = true ]; then
+                REPLY_ALL="y"
+            elif [ -t 0 ]; then
+                read -p "Хотите установить ВСЕ пакеты системы из packages-pacman.txt? (y/N): " -n 1 -r REPLY_ALL
+                echo
+            fi
+            if [[ "$REPLY_ALL" =~ ^[Yy]$ ]]; then
+                echo -e "${YELLOW}Установка всех пакетов через pacman...${NC}"
+                sudo pacman -S --needed --noconfirm - < "$DOTFILES_DIR/packages-pacman.txt" || true
+            fi
+        fi
+
+        # Установка AUR пакетов
         if [ -n "$AUR_HELPER" ] && [ -f "$DOTFILES_DIR/packages-aur.txt" ]; then
-            if [ -t 0 ]; then
+            REPLY_AUR="n"
+            if [ "$AUTO_YES" = true ]; then
+                REPLY_AUR="y"
+            elif [ -t 0 ]; then
                 read -p "Обнаружен $AUR_HELPER. Установить AUR пакеты из packages-aur.txt? (y/N): " -n 1 -r REPLY_AUR
                 echo
-                if [[ "$REPLY_AUR" =~ ^[Yy]$ ]]; then
-                    $AUR_HELPER -S --needed --noconfirm - < "$DOTFILES_DIR/packages-aur.txt" || true
-                fi
+            fi
+            if [[ "$REPLY_AUR" =~ ^[Yy]$ ]]; then
+                $AUR_HELPER -S --needed --noconfirm - < "$DOTFILES_DIR/packages-aur.txt" || true
+            else
+                # Хотя бы базовые компоненты для тем и рантайма
+                $AUR_HELPER -S --needed --noconfirm caelestia-cli caelestia-shell qtengine 2>/dev/null || true
             fi
         fi
 
@@ -117,6 +172,7 @@ install_packages() {
         # Установка базового набора
         sudo dnf install -y \
             hyprland \
+            quickshell \
             foot \
             alacritty \
             fish \
@@ -140,19 +196,47 @@ install_packages() {
             qt6-qtdeclarative \
             qt6-qtquickcontrols2 \
             jetbrains-mono-fonts-all || true
+
+    elif [[ "$OS_ID" == "ubuntu" || "$OS_ID" == "debian" || "$OS_LIKE" =~ "debian" ]]; then
+        echo -e "${GREEN}Обнаружен Debian / Ubuntu! Установка доступных пакетов через apt...${NC}"
+        sudo apt update || true
+        sudo apt install -y \
+            foot \
+            alacritty \
+            fish \
+            fastfetch \
+            starship \
+            grim \
+            slurp \
+            tesseract-ocr \
+            tesseract-ocr-rus \
+            tesseract-ocr-eng \
+            imagemagick \
+            wl-clipboard \
+            btop \
+            cava \
+            mpv \
+            playerctl \
+            brightnessctl \
+            micro || true
     else
-        echo -e "${YELLOW}Неизвестный дистрибутив ($OS_ID). Пропускаем установку системных пакетов.${NC}"
+        echo -e "${YELLOW}Дистрибутив ($OS_ID). Пропускаем автоматическую установку менеджером пакетов.${NC}"
     fi
 }
 
-if [ -t 0 ]; then
+REPLY_PKG="y"
+if [ "$AUTO_YES" != true ] && [ -t 0 ]; then
     read -p "Установить системные пакеты и зависимости окружения? (y/n, по умолчанию y): " -n 1 -r REPLY_PKG
     echo
-    if [[ "$REPLY_PKG" =~ ^[Yy]$ || -z "$REPLY_PKG" ]]; then
-        install_packages
-    fi
-else
+fi
+if [[ "$REPLY_PKG" =~ ^[Yy]$ || -z "$REPLY_PKG" ]]; then
     install_packages
+fi
+
+# Настройка прав для ноутбука (управление подсветкой и тачпадом)
+if [ "$IS_LAPTOP" = true ]; then
+    echo -e "${YELLOW}Настройка прав доступа для ноутбука (video, input)...${NC}"
+    sudo usermod -aG video,input "$USER" 2>/dev/null || true
 fi
 
 # 2. Шрифты
@@ -205,6 +289,8 @@ CONFIG_BACKUP_ITEMS=(
     zed
     Code/User/settings.json
     starship.toml
+    wireplumber
+    vesktop
     kglobalshortcutsrc
     kwinrc
     kdeglobals
@@ -244,7 +330,7 @@ for shf in .bashrc .bash_profile .zshrc; do
     fi
 done
 
-# 6. Развертывание пользовательских скриптов и сервисных меню
+# 6. Развертывание пользовательских скриптов и системных интеграций
 echo -e "\n${BLUE}--> [6/8] Установка утилит и скриптов в ~/.local/bin и системных интеграций...${NC}"
 mkdir -p "$HOME/.local/bin"
 if [ -d "$DOTFILES_DIR/.local/bin" ]; then
@@ -264,6 +350,12 @@ fi
 
 # Выдача прав на исполнение всем скриптам
 find "$HOME/.config/quickshell/" "$HOME/.config/hypr/" -type f \( -name "*.sh" -o -name "*.py" \) -exec chmod +x {} + 2>/dev/null || true
+
+# Восстановление настроек dconf (темы, шрифты)
+if [ -f "$DOTFILES_DIR/dconf-settings.ini" ] && command -v dconf >/dev/null 2>&1; then
+    echo -e "${YELLOW}Восстановление настроек dconf...${NC}"
+    dconf load / < "$DOTFILES_DIR/dconf-settings.ini" 2>/dev/null || true
+fi
 
 # 7. Tesseract OCR модели для экранного переводчика
 echo -e "\n${BLUE}--> [7/8] Проверка моделей экранного переводчика Tesseract OCR...${NC}"
@@ -292,6 +384,12 @@ if command -v code >/dev/null 2>&1 && [ -f "$DOTFILES_DIR/vscode-extensions.txt"
     done < "$DOTFILES_DIR/vscode-extensions.txt"
 fi
 
+# Копирование шпаргалок на рабочий стол или в домашнюю папку
+if [ -f "$DOTFILES_DIR/горячие_клавиши.md" ]; then
+    cp "$DOTFILES_DIR/горячие_клавиши.md" "$HOME/" 2>/dev/null || true
+    cp "$DOTFILES_DIR/Горячие_клавиши_Hyprland.html" "$HOME/" 2>/dev/null || true
+fi
+
 # 8. Перезагрузка сессии при необходимости
 echo -e "\n${BLUE}--> [8/8] Финализация...${NC}"
 if command -v hyprctl >/dev/null 2>&1 && [ -n "$HYPRLAND_INSTANCE_SIGNATURE" ]; then
@@ -300,10 +398,10 @@ if command -v hyprctl >/dev/null 2>&1 && [ -n "$HYPRLAND_INSTANCE_SIGNATURE" ]; 
 fi
 
 echo -e "\n${GREEN}====================================================================${NC}"
-echo -e "${GREEN}   ✨ Конфигурация Qubert успешно развернута на ноутбуке! 🎉        ${NC}"
+echo -e "${GREEN}   ✨ Конфигурация Qubert успешно развернута! 🎉                   ${NC}"
 echo -e "${GREEN}====================================================================${NC}"
 echo -e "Горячие клавиши (работают на EN и RU раскладках):"
-echo -e "  • ${YELLOW}Super + W / Ц${NC}             — Селектор обоев (Wallpaper Engine / MPV)"
+echo -e "  • ${YELLOW}Super + W / Ц${NC}             — Селектор обоев (Wallpaper Engine / MPV / Темы)"
 echo -e "  • ${YELLOW}Super + T / Е${NC}             — Быстрый Google переводчик (карточка)"
 echo -e "  • ${YELLOW}Super + Shift + T / Е${NC}       — Экранный переводчик OCR (выделение области)"
 echo -e "  • ${YELLOW}Super + M / Ь${NC}             — Управление музыкой и медиаплеером"
@@ -317,4 +415,5 @@ echo -e "  • ${YELLOW}Super + C / С / Alt+F4${NC}    — Закрыть ок�
 echo -e "  • ${YELLOW}PrintScreen${NC}               — Скриншот со Swappy"
 echo -e "  • ${CYAN}Тачпад ноутбука:${NC} свайп 3 пальцами влево/вправо для рабочих столов"
 echo -e "  • ${CYAN}Яркость ноутбука:${NC} функциональные клавиши Fn + Яркость поддерживаются"
+echo -e "  • ${CYAN}Мониторы:${NC} автоматическая поддержка ноутбуков (eDP-1/eDP-4) и мониторов (DP-1)"
 echo

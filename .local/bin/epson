@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+nohup system-config-printer --show-jobs L222-Series >/dev/null 2>&1 &
